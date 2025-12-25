@@ -21,6 +21,11 @@ button.active{background:#007aff;}
 
 <h1>Torque Specs & Oils</h1>
 
+<!-- VIN input -->
+<input type="text" id="vinInput" placeholder="Enter VIN">
+<button onclick="searchVin()">Decode VIN</button>
+
+<!-- Vehicle and engine dropdowns -->
 <select id="vehicleSelect" onchange="loadEngines()">
   <option value="">Select Vehicle</option>
 </select>
@@ -45,6 +50,8 @@ let unit = localStorage.getItem("unit") || "ft";
 let favorites = JSON.parse(localStorage.getItem("favorites") || "{}");
 
 // ---------------- FUNCTIONS ----------------
+
+// Load brand JSONs
 async function loadBrandData(){
     const brands = ["toyota","lexus","honda","bmw","ford"];
     let allData = {};
@@ -57,6 +64,7 @@ async function loadBrandData(){
     populateVehicleDropdown();
 }
 
+// Populate vehicle dropdown
 function populateVehicleDropdown(){
     const vehicleSelect = document.getElementById("vehicleSelect");
     Object.keys(torqueData).forEach(key=>{
@@ -68,6 +76,7 @@ function populateVehicleDropdown(){
     });
 }
 
+// Load engines for selected vehicle
 function loadEngines(){
     currentVehicle = document.getElementById("vehicleSelect").value;
     currentEngine = "";
@@ -83,6 +92,7 @@ function loadEngines(){
     }
 }
 
+// Load specs for selected engine
 function loadSpecs(){
     const engineSelect = document.getElementById("engineSelect");
     currentEngine = engineSelect.value;
@@ -92,6 +102,7 @@ function loadSpecs(){
     }
 }
 
+// Render specs to page
 function renderSpecs(specs){
     const results = document.getElementById("results");
     results.innerHTML = "";
@@ -116,6 +127,7 @@ function renderSpecs(specs){
     }
 }
 
+// Search filter
 function filterSpecs(){
     const term = document.getElementById("search").value.toLowerCase();
     if(!currentSpecs) return;
@@ -132,6 +144,7 @@ function filterSpecs(){
     renderSpecs(filtered);
 }
 
+// Toggle units
 function toggleUnits(){
     unit = unit==="ft"?"nm":"ft";
     localStorage.setItem("unit",unit);
@@ -139,15 +152,55 @@ function toggleUnits(){
     renderSpecs(currentSpecs);
 }
 
+// Convert values
 function convert(value){
     if(unit==="ft") return value+" ft-lb";
     return Math.round(value*1.356)+" Nm";
 }
 
+// Toggle favorites
 function toggleFav(key){
     favorites[key]=!favorites[key];
     localStorage.setItem("favorites",JSON.stringify(favorites));
     renderSpecs(currentSpecs);
+}
+
+// ---------------- VIN decoding ----------------
+async function searchVin(){
+    const vin = document.getElementById("vinInput").value.trim().toUpperCase();
+    if(!vin) return alert("Enter a VIN");
+    const res = await fetch('vinMapping.json');
+    const vinMapping = await res.json();
+    const wmi = vin.slice(0,3);
+    const yearChar = vin[9];
+    const year = decodeVinYear(yearChar);
+    const vehicleData = vinMapping[wmi];
+    if(!vehicleData) return alert("VIN not recognized");
+
+    for(const model in vehicleData){
+        for(const range in vehicleData[model]){
+            const [start,end] = range.split("-").map(Number);
+            if(year >= start && year <= end){
+                const engines = vehicleData[model][range];
+                const engineCode = Object.keys(engines)[0];
+                const jsonKey = engines[engineCode];
+                document.getElementById("vehicleSelect").value = jsonKey.split("_")[0];
+                loadEngines();
+                document.getElementById("engineSelect").value = engineCode;
+                loadSpecs();
+                return;
+            }
+        }
+    }
+    alert("VIN not supported");
+}
+
+// Decode 10th VIN character to year
+function decodeVinYear(c){
+    const map = {A:1980,B:1981,C:1982,D:1983,E:1984,F:1985,G:1986,H:1987,J:1988,K:1989,L:1990,M:1991,N:1992,P:1993,R:1994,S:1995,T:1996,V:1997,W:1998,X:1999,Y:2000,
+                 1:2001,2:2002,3:2003,4:2004,5:2005,6:2006,7:2007,8:2008,9:2009,
+                 A2020:2020,B2021:2021,C2022:2022,D2023:2023,E2024:2024,F2025:2025};
+    return map[c] || null;
 }
 
 // ---------------- INIT ----------------
