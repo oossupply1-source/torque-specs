@@ -1,0 +1,20 @@
+{
+  "ford_5.0_Coyote_2011_2025": {
+    "models": ["Mustang GT","F‑150"],
+    "years": "2011–2025",
+    "market": "US",
+    "oil": {"capacity_quarts": 6.0, "type": "SAE 5W‑30"},
+    "torque": {"oil_drain_plug": 45, "spark_plugs": 15},
+    "transmission": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null},
+    "differential": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null}
+  },
+  "ford_2.3_EcoBoost_2015_2025": {
+    "models": ["Mustang","F‑150"],
+    "years": "2015–2025",
+    "market": "US",
+    "oil": {"capacity_quarts": 5.8, "type": "SAE 5W‑30"},
+    "torque": {"oil_drain_plug": 38, "spark_plugs": 14},
+    "transmission": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null},
+    "differential": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null}
+  }
+}
