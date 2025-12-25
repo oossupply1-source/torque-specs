@@ -1,51 +1,129 @@
-// ---------------- VIN decoding ----------------
-async function searchVin(){
-    const vin = document.getElementById("vinInput").value.trim().toUpperCase();
-    if(!vin) return alert("Enter a VIN");
-
-    // Load VIN mapping JSON
-    const mappingRes = await fetch('vinMapping.json');
-    const vinMapping = await mappingRes.json();
-
-    // Extract WMI (first 3 chars) and model year (10th char)
-    const wmi = vin.slice(0,3);
-    const yearChar = vin[9];
-    const year = decodeVinYear(yearChar);
-    if(!year) return alert("Invalid VIN year code");
-
-    const vehicleData = vinMapping[wmi];
-    if(!vehicleData) return alert("VIN not recognized");
-
-    // Loop through models and year ranges
-    for(const model in vehicleData){
-        for(const range in vehicleData[model]){
-            const [start,end] = range.split("-").map(Number);
-            if(year >= start && year <= end){
-                const engines = vehicleData[model][range];
-                const engineCode = Object.keys(engines)[0]; // pick first engine for now
-                const jsonKey = engines[engineCode];
-
-                // Select vehicle and engine in your app
-                document.getElementById("vehicleSelect").value = jsonKey.split("_")[0];
-                loadEngines(); // populate engines dropdown
-                document.getElementById("engineSelect").value = engineCode;
-                loadSpecs(); // load torque & oil specs
-                return;
-            }
-        }
+{
+  "1HG": {
+    "Civic": {
+      "1990-1995": {
+        "D16": { "jsonKey": "honda_D16_1990_1995", "vds": "CM8" }
+      },
+      "1996-2005": {
+        "D16Z6": { "jsonKey": "honda_D16Z6_1996_2005", "vds": "CM9" }
+      },
+      "2002-2006": {
+        "K20A2": { "jsonKey": "honda_K20A2_2002_2006", "vds": "CM82" }
+      },
+      "2007-2011": {
+        "K24A2": { "jsonKey": "honda_K24A_2007_2011", "vds": "FG23" }
+      }
+    },
+    "Accord": {
+      "1990-1997": {
+        "F22B": { "jsonKey": "honda_F22B_1990_1997", "vds": "CF3" }
+      },
+      "1998-2002": {
+        "F23A": { "jsonKey": "honda_F23A_1998_2002", "vds": "CL7" }
+      },
+      "2003-2007": {
+        "K24A": { "jsonKey": "honda_K24_2003_2007", "vds": "CM8" }
+      },
+      "2008-2012": {
+        "K24Z3": { "jsonKey": "honda_K24Z_2008_2012", "vds": "CP9" }
+      }
     }
-
-    alert("VIN not supported");
-}
-
-// ---------------- Decode 10th VIN character → year ----------------
-function decodeVinYear(c){
-    const map = {
-        "A":1980,"B":1981,"C":1982,"D":1983,"E":1984,"F":1985,"G":1986,"H":1987,"J":1988,"K":1989,
-        "L":1990,"M":1991,"N":1992,"P":1993,"R":1994,"S":1995,"T":1996,"V":1997,"W":1998,"X":1999,"Y":2000,
-        "1":2001,"2":2002,"3":2003,"4":2004,"5":2005,"6":2006,"7":2007,"8":2008,"9":2009,
-        "A1":2010,"B1":2011,"C1":2012,"D1":2013,"E1":2014,"F1":2015,"G1":2016,"H1":2017,"J1":2018,"K1":2019,
-        "L1":2020,"M1":2021,"N1":2022,"P1":2023,"R1":2024,"S1":2025
-    };
-    return map[c] || null;
+  },
+  "4T1": {
+    "Camry": {
+      "1990-1994": {
+        "5S-FE": { "jsonKey": "toyota_5S_FE_1990_1994", "vds": "BG12" }
+      },
+      "1995-1999": {
+        "2JZ-GE": { "jsonKey": "toyota_2JZ_GE_1995_1999", "vds": "CE34" }
+      },
+      "2000-2006": {
+        "1AZ-FE": { "jsonKey": "toyota_1AZ_FE_2000_2006", "vds": "DF45" }
+      },
+      "2007-2011": {
+        "2AZ-FE": { "jsonKey": "toyota_2AZ_FE_2007_2011", "vds": "EF56" }
+      },
+      "2012-2018": {
+        "2AR-FE": { "jsonKey": "toyota_2AR_FE_2012_2018", "vds": "GF67" }
+      }
+    },
+    "Corolla": {
+      "1990-1997": {
+        "4A-FE": { "jsonKey": "toyota_4A_FE_1990_1997", "vds": "BC12" }
+      },
+      "1998-2002": {
+        "1ZZ-FE": { "jsonKey": "toyota_1ZZ_FE_1998_2002", "vds": "CD34" }
+      },
+      "2003-2008": {
+        "2ZR-FE": { "jsonKey": "toyota_2ZR_FE_2003_2008", "vds": "DE45" }
+      },
+      "2009-2018": {
+        "2ZR-FAE": { "jsonKey": "toyota_2ZR_FAE_2009_2018", "vds": "EF56" }
+      }
+    }
+  },
+  "JT2": {
+    "Tacoma": {
+      "1995-2004": {
+        "5VZ-FE": { "jsonKey": "toyota_5VZ_FE_1995_2004", "vds": "CD12" }
+      },
+      "2005-2021": {
+        "1GR-FE": { "jsonKey": "toyota_1GR_FE_2005_2021", "vds": "DE34" }
+      }
+    },
+    "4Runner": {
+      "1995-2002": {
+        "3VZ-E": { "jsonKey": "toyota_3VZ_E_1995_2002", "vds": "EF56" }
+      },
+      "2003-2009": {
+        "5VZ-FE": { "jsonKey": "toyota_5VZ_FE_2003_2009", "vds": "GH78" }
+      },
+      "2010-2021": {
+        "1GR-FE": { "jsonKey": "toyota_1GR_FE_2010_2021", "vds": "IJ90" }
+      }
+    }
+  },
+  "JTH": {
+    "RX350": {
+      "2006-2021": {
+        "2GR-FE": { "jsonKey": "lexus_2GR_FE_2006_2021", "vds": "LM12" }
+      }
+    },
+    "IS300": {
+      "1999-2005": {
+        "2JZ-GE": { "jsonKey": "lexus_2JZ_GE_1999_2005", "vds": "NO34" }
+      }
+    },
+    "ES350": {
+      "2007-2018": {
+        "2GR-FE": { "jsonKey": "lexus_2GR_FE_2006_2021", "vds": "PQ56" }
+      }
+    }
+  },
+  "4US": {
+    "335i": {
+      "2007-2016": {
+        "N55": { "jsonKey": "bmw_N55_2007_2016", "vds": "RS78" }
+      }
+    },
+    "340i": {
+      "2016-2025": {
+        "B58": { "jsonKey": "bmw_B58_2016_2025", "vds": "TU90" }
+      }
+    }
+  },
+  "1FA": {
+    "Mustang": {
+      "2011-2025": {
+        "5.0 Coyote": { "jsonKey": "ford_5.0_Coyote_2011_2025", "vds": "VW12" },
+        "2.3 EcoBoost": { "jsonKey": "ford_2.3_EcoBoost_2015_2025", "vds": "XY34" }
+      }
+    },
+    "F-150": {
+      "2011-2025": {
+        "5.0 Coyote": { "jsonKey": "ford_5.0_Coyote_2011_2025", "vds": "AB56" },
+        "2.3 EcoBoost": { "jsonKey": "ford_2.3_EcoBoost_2015_2025", "vds": "CD78" }
+      }
+    }
+  }
 }
