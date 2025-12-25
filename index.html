@@ -8,36 +8,54 @@
 <style>
 body {
   font-family: system-ui, -apple-system;
-  background: #111;
+  background: #0f0f0f;
   color: #fff;
   margin: 0;
   padding: 16px;
 }
 h1 {
   text-align: center;
+  margin-bottom: 10px;
 }
-select, input {
+select, input, button {
   width: 100%;
   padding: 12px;
-  margin: 8px 0;
+  margin: 6px 0;
   border-radius: 8px;
   border: none;
   font-size: 16px;
 }
+button {
+  background: #222;
+  color: #fff;
+}
+button.active {
+  background: #007aff;
+}
 .card {
-  background: #1e1e1e;
+  background: #1b1b1b;
   border-radius: 10px;
   padding: 12px;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 .spec {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
+  align-items: center;
+  padding: 6px 0;
   border-bottom: 1px solid #333;
 }
 .spec:last-child {
   border-bottom: none;
+}
+.star {
+  cursor: pointer;
+  margin-left: 8px;
+}
+.small {
+  font-size: 12px;
+  opacity: 0.6;
+  text-align: center;
 }
 </style>
 </head>
@@ -58,24 +76,34 @@ select, input {
   oninput="filterSpecs()"
 />
 
+<button id="unitBtn" onclick="toggleUnits()">Units: ft-lb</button>
+
 <div id="results"></div>
 
+<p class="small">Works offline • Saved on your phone</p>
+
 <script>
-const data = {
+// ---------------- DATA ----------------
+const torqueData = {
   is300: {
-    "Oil Drain Plug": "30 ft-lb",
-    "Lug Nuts": "76 ft-lb",
-    "Spark Plugs": "13 ft-lb",
-    "Valve Cover Bolts": "53 in-lb",
-    "Intake Manifold": "29 ft-lb"
+    "Oil Drain Plug": 30,
+    "Lug Nuts": 76,
+    "Spark Plugs": 13,
+    "Valve Cover Bolts (in-lb)": 53,
+    "Intake Manifold": 29
   }
 };
 
+// ---------------- STATE ----------------
+let currentVehicle = "";
 let currentSpecs = {};
+let unit = localStorage.getItem("unit") || "ft";
+let favorites = JSON.parse(localStorage.getItem("favorites") || "{}");
 
+// ---------------- FUNCTIONS ----------------
 function loadSpecs() {
-  const vehicle = document.getElementById("vehicleSelect").value;
-  currentSpecs = data[vehicle] || {};
+  currentVehicle = vehicleSelect.value;
+  currentSpecs = torqueData[currentVehicle] || {};
   renderSpecs(currentSpecs);
 }
 
@@ -83,15 +111,26 @@ function renderSpecs(specs) {
   const results = document.getElementById("results");
   results.innerHTML = "";
   for (const part in specs) {
+    const value = specs[part];
+    const display = convert(value);
+    const favKey = currentVehicle + part;
+    const star = favorites[favKey] ? "⭐" : "☆";
+
     const div = document.createElement("div");
     div.className = "card spec";
-    div.innerHTML = `<strong>${part}</strong><span>${specs[part]}</span>`;
+    div.innerHTML = `
+      <span><strong>${part}</strong></span>
+      <span>
+        ${display}
+        <span class="star" onclick="toggleFav('${favKey}')">${star}</span>
+      </span>
+    `;
     results.appendChild(div);
   }
 }
 
 function filterSpecs() {
-  const term = document.getElementById("search").value.toLowerCase();
+  const term = search.value.toLowerCase();
   const filtered = {};
   for (const part in currentSpecs) {
     if (part.toLowerCase().includes(term)) {
@@ -100,6 +139,27 @@ function filterSpecs() {
   }
   renderSpecs(filtered);
 }
+
+function toggleUnits() {
+  unit = unit === "ft" ? "nm" : "ft";
+  localStorage.setItem("unit", unit);
+  unitBtn.textContent = "Units: " + (unit === "ft" ? "ft-lb" : "Nm");
+  renderSpecs(currentSpecs);
+}
+
+function convert(value) {
+  if (unit === "ft") return value + " ft-lb";
+  return Math.round(value * 1.356) + " Nm";
+}
+
+function toggleFav(key) {
+  favorites[key] = !favorites[key];
+  localStorage.setItem("favorites", JSON.stringify(favorites));
+  renderSpecs(currentSpecs);
+}
+
+// ---------------- INIT ----------------
+unitBtn.textContent = "Units: " + (unit === "ft" ? "ft-lb" : "Nm");
 </script>
 
 </body>
