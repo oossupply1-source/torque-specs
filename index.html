@@ -64,10 +64,25 @@ button.active {
 
 <h1>Torque Specs</h1>
 
-<select id="vehicleSelect" onchange="loadSpecs()">
+ <select id="vehicleSelect" onchange="loadSpecs()">
   <option value="">Select Vehicle</option>
-  <option value="is300">2001 Lexus IS300 – 2JZ-GE</option>
-</select>
+
+  <option value="lexus_is_1999_2005">Lexus IS (1999–2005)</option>
+  <option value="lexus_es_1990_2025">Lexus ES (1990–2025)</option>
+  <option value="lexus_gs_1993_2020">Lexus GS (1993–2020)</option>
+  <option value="lexus_ls_1990_2025">Lexus LS (1990–2025)</option>
+  <option value="lexus_rx_1999_2025">Lexus RX (1999–2025)</option>
+  <option value="lexus_gx_2003_2025">Lexus GX (2003–2025)</option>
+  <option value="lexus_lx_1996_2025">Lexus LX (1996–2025)</option>
+
+  <option value="toyota_corolla_1990_2025">Toyota Corolla (1990–2025)</option>
+  <option value="toyota_camry_1990_2025">Toyota Camry (1990–2025)</option>
+  <option value="toyota_prius_1997_2025">Toyota Prius (1997–2025)</option>
+  <option value="toyota_rav4_1996_2025">Toyota RAV4 (1996–2025)</option>
+  <option value="toyota_4runner_1990_2025">Toyota 4Runner (1990–2025)</option>
+  <option value="toyota_tacoma_1995_2025">Toyota Tacoma (1995–2025)</option>
+  <option value="toyota_tundra_2000_2025">Toyota Tundra (2000–2025)</option>
+</select> 
 
 <input
   type="text"
@@ -85,15 +100,148 @@ button.active {
 <script>
 // ---------------- DATA ----------------
 const torqueData = {
-  is300: {
+
+  // =====================
+  // LEXUS
+  // =====================
+
+  "lexus_is_1999_2005": {
     "Oil Drain Plug": 30,
     "Lug Nuts": 76,
     "Spark Plugs": 13,
     "Valve Cover Bolts (in-lb)": 53,
     "Intake Manifold": 29
+  },
+
+  "lexus_es_1990_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  "lexus_gs_1993_2020": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  "lexus_ls_1990_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  "lexus_rx_1999_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  "lexus_gx_2003_2025": {
+    "Lug Nuts": 97,
+    "Oil Drain Plug": 30
+  },
+
+  "lexus_lx_1996_2025": {
+    "Lug Nuts": 97,
+    "Oil Drain Plug": 39
+  },
+
+  "lexus_nx_2015_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  "lexus_ux_2019_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  "lexus_rc_2015_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  "lexus_lc_2018_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  // =====================
+  // TOYOTA
+  // =====================
+
+  "toyota_corolla_1990_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 27
+  },
+
+  "toyota_camry_1990_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  "toyota_avalon_1995_2022": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  "toyota_prius_1997_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 27
+  },
+
+  "toyota_supra_1993_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  "toyota_mr2_1990_2005": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  "toyota_celica_1990_2005": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 27
+  },
+
+  "toyota_rav4_1996_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  "toyota_highlander_2001_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
+  },
+
+  "toyota_4runner_1990_2025": {
+    "Lug Nuts": 83,
+    "Oil Drain Plug": 30
+  },
+
+  "toyota_tacoma_1995_2025": {
+    "Lug Nuts": 83,
+    "Oil Drain Plug": 30
+  },
+
+  "toyota_tundra_2000_2025": {
+    "Lug Nuts": 97,
+    "Oil Drain Plug": 39
+  },
+
+  "toyota_sequoia_2001_2025": {
+    "Lug Nuts": 97,
+    "Oil Drain Plug": 39
+  },
+
+  "toyota_land_cruiser_1990_2025": {
+    "Lug Nuts": 97,
+    "Oil Drain Plug": 39
+  },
+
+  "toyota_sienna_1998_2025": {
+    "Lug Nuts": 76,
+    "Oil Drain Plug": 30
   }
 };
-
 // ---------------- STATE ----------------
 let currentVehicle = "";
 let currentSpecs = {};
