@@ -1,0 +1,29 @@
+{
+  "honda_D16_1990_2005": {
+    "models": ["Civic","CRX","Del Sol"],
+    "years": "1990–2005",
+    "market": "US",
+    "oil": {"capacity_quarts": 3.8, "type": "SAE 5W‑30"},
+    "torque": {"oil_drain_plug": 29, "spark_plugs": 13},
+    "transmission": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null},
+    "differential": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null}
+  },
+  "honda_K20A2_2002_2006": {
+    "models": ["Civic Si","RSX"],
+    "years": "2002–2006",
+    "market": "US",
+    "oil": {"capacity_quarts": 4.4, "type": "SAE 0W‑20"},
+    "torque": {"oil_drain_plug": 29, "spark_plugs": 13},
+    "transmission": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null},
+    "differential": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null}
+  },
+  "honda_K24A_2007_2011": {
+    "models": ["Accord","CR‑V"],
+    "years": "2007–2011",
+    "market": "US",
+    "oil": {"capacity_quarts": 4.4, "type": "SAE 0W‑20"},
+    "torque": {"oil_drain_plug": 30, "spark_plugs": 13},
+    "transmission": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null},
+    "differential": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null}
+  }
+}
