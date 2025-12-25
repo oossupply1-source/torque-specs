@@ -1,0 +1,38 @@
+{
+  "toyota_2AZ_FE_2002_2018": {
+    "models": ["Camry","RAV4", "Solara"],
+    "years": "2002–2018",
+    "market": "US",
+    "oil": {"capacity_quarts": 4.3, "type": "SAE 0W-20 / 5W-30"},
+    "torque": {"oil_drain_plug": 30, "spark_plugs": 13},
+    "transmission": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null},
+    "differential": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null}
+  },
+  "toyota_1GR_FE_2005_2021": {
+    "models": ["Tacoma","4Runner","FJ Cruiser"],
+    "years": "2005–2021",
+    "market": "US",
+    "oil": {"capacity_quarts": 5.5, "type": "SAE 5W-30"},
+    "torque": {"oil_drain_plug": 39, "spark_plugs": 13},
+    "transmission": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null},
+    "differential": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null}
+  },
+  "toyota_5VZ_FE_1995_2004": {
+    "models": ["Tacoma","4Runner","T100"],
+    "years": "1995–2004",
+    "market":"US",
+    "oil": {"capacity_quarts": 5.4, "type":"SAE 5W-30"},
+    "torque":{"oil_drain_plug": 30},
+    "transmission": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null},
+    "differential": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null}
+  },
+  "toyota_1AZ_FE_2000_2012": {
+    "models": ["RAV4","Camry","Corolla"],
+    "years": "2000–2012",
+    "market":"US",
+    "oil": {"capacity_quarts": 4.0, "type":"SAE 5W-20"},
+    "torque":{"oil_drain_plug": 27},
+    "transmission": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null},
+    "differential": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null}
+  }
+}
