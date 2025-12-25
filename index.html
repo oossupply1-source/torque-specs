@@ -3,221 +3,157 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Torque Specs</title>
+<title>Torque Specs & Oils</title>
 <style>
-body {
-  font-family: system-ui, -apple-system;
-  background: #0f0f0f;
-  color: #fff;
-  margin: 0;
-  padding: 16px;
-}
-h1 {
-  text-align: center;
-  margin-bottom: 10px;
-}
-select, input, button {
-  width: 100%;
-  padding: 12px;
-  margin: 6px 0;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
-}
-button {
-  background: #222;
-  color: #fff;
-}
-button.active {
-  background: #007aff;
-}
-.card {
-  background: #1b1b1b;
-  border-radius: 10px;
-  padding: 12px;
-  margin-top: 10px;
-}
-.spec {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  border-bottom: 1px solid #333;
-}
-.spec:last-child {
-  border-bottom: none;
-}
-.star {
-  cursor: pointer;
-  margin-left: 8px;
-}
-.small {
-  font-size: 12px;
-  opacity: 0.6;
-  text-align: center;
-}
+body { font-family: system-ui, -apple-system; background: #0f0f0f; color: #fff; margin:0; padding:16px;}
+h1{text-align:center;margin-bottom:10px;}
+select,input,button{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:none;font-size:16px;}
+button{background:#222;color:#fff;}
+button.active{background:#007aff;}
+.card{background:#1b1b1b;border-radius:10px;padding:12px;margin-top:10px;}
+.spec{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #333;}
+.spec:last-child{border-bottom:none;}
+.star{cursor:pointer;margin-left:8px;}
+.small{font-size:12px;opacity:0.6;text-align:center;}
 </style>
 </head>
 <body>
 
-<h1>Torque Specs</h1>
+<h1>Torque Specs & Oils</h1>
 
-<select id="vehicleSelect">
+<select id="vehicleSelect" onchange="loadEngines()">
   <option value="">Select Vehicle</option>
-  <option value="toyota_2AZ_FE">Toyota 2AZ-FE (Camry/RAV4)</option>
-  <option value="toyota_2GR_FE">Toyota/Lexus 2GR-FE (3.5L V6)</option>
-  <option value="toyota_2UZ_FE">Toyota 2UZ-FE (4.7L V8)</option>
-  <option value="lexus_5_0L_V8">Lexus 5.0L V8 (LS 2007–2017)</option>
 </select>
 
-<input type="text" id="search" placeholder="Search parts...">
-<button id="unitBtn">Toggle Units</button>
+<select id="engineSelect" onchange="loadSpecs()">
+  <option value="">Select Engine</option>
+</select>
 
-<div id="results"></div>
+<input type="text" id="search" placeholder="Search Parts..." oninput="filterSpecs()">
+
+<button id="unitBtn" onclick="toggleUnits()">Units: ft-lb</button>
+
+<div class="card" id="results"></div>
 
 <script>
-// ---------------- DATA ----------------
-const torqueData = {
-  "toyota_2AZ_FE": {
-    "name": "Toyota 2AZ-FE (2.4L)",
-    "Oil Drain Plug": 30,
-    "Oil Filter": 13,
-    "Valve Cover Bolts": 8,
-    "Oil Capacity With Filter (qt)": 4.3,
-    "Oil Capacity Dry Fill (qt)": 5.0
-  },
-  "toyota_2GR_FE": {
-    "name": "Toyota/Lexus 2GR-FE (3.5L V6)",
-    "Oil Drain Plug": 29,
-    "Spark Plugs": 11,
-    "Oil Capacity With Filter (qt)": 6.4,
-    "Recommended Oil": "SAE 0W-20"
-  },
-  "toyota_2UZ_FE": {
-    "name": "Toyota 2UZ-FE (4.7L V8)",
-    "Oil Drain Plug": 29,
-    "Oil Filter Housing Cap": 10
-  },
-  "lexus_5_0L_V8": {
-    "name": "Lexus 5.0L V8 (LS 2007–2017)",
-    "Oil Drain Plug": 29,
-    "Valve Cover Bolts": 7,
-    "Oil Pan Bolts": 8
-  },
-  // Honda
-  "honda_k_series": {
-    "name": "Honda K Series (K20/K24)",
-    "Oil Drain Plug": 29,
-    "Oil Filter": 9,
-    "Oil Capacity With Filter (qt)": 4.4,
-    "Oil Capacity Without Filter (qt)": 4.2,
-    "Recommended Oil": "SAE 0W-20"
-  },
-  "honda_civic_k20c2": {
-    "name": "Honda Civic 2.0L (K20C2)",
-    "Oil Drain Plug": 30,
-    "Oil Filter": 9,
-    "Oil Capacity With Filter (qt)": 4.4,
-    "Oil Capacity Without Filter (qt)": 4.2,
-    "Recommended Oil": "SAE 0W-20"
-  },
-
-  // BMW
-  "bmw_n55_b58": {
-    "name": "BMW N55 / B58 6-Cyl",
-    "Oil Drain Plug": 18,
-    "Oil Filter Cap": 18,
-    "Oil Capacity (approx)": 6.9,
-    "Oil Type": "SAE 5W-30 / BMW LL-04"
-  },
-  
-  // Ford (generic common)
-  "ford_common_oil_change": {
-    "name": "Ford Common Engines",
-    "Oil Drain Plug": 33,
-    "Oil Filter": 11,
-    "Oil Capacity With Filter (qt)": 5.7,
-    "Oil Type": "SAE 5W-30"
-  }
-};
-// ---------------- DATA ----------------
-
 // ---------------- STATE ----------------
+let torqueData = {};
 let currentVehicle = "";
+let currentEngine = "";
 let currentSpecs = {};
 let unit = localStorage.getItem("unit") || "ft";
 let favorites = JSON.parse(localStorage.getItem("favorites") || "{}");
 
 // ---------------- FUNCTIONS ----------------
-function loadSpecs() {
-  const vehicleSelect = document.getElementById("vehicleSelect");
-  currentVehicle = vehicleSelect.value;
-  currentSpecs = currentVehicle ? torqueData[currentVehicle] : {};
-  renderSpecs(currentSpecs);
-}
-
-function renderSpecs(specs) {
-  const results = document.getElementById("results");
-  results.innerHTML = "";
-  for (const part in specs) {
-    if (part === "name") continue; // skip name property
-    const value = specs[part];
-    const display = convert(value);
-    const favKey = currentVehicle + part;
-    const star = favorites[favKey] ? "⭐" : "☆";
-
-    const div = document.createElement("div");
-    div.className = "card spec";
-    div.innerHTML = `
-      <span><strong>${part}</strong></span>
-      <span>
-        ${display} 
-        <span class="star" onclick="toggleFav('${favKey}')">${star}</span>
-      </span>
-    `;
-    results.appendChild(div);
-  }
-}
-
-function filterSpecs() {
-  const searchInput = document.getElementById("search");
-  const term = searchInput.value.toLowerCase();
-  const filtered = {};
-  for (const part in currentSpecs) {
-    if (part.toLowerCase().includes(term)) {
-      filtered[part] = currentSpecs[part];
+async function loadBrandData(){
+    const brands = ["toyota","lexus","honda","bmw","ford"];
+    let allData = {};
+    for(const brand of brands){
+        const res = await fetch(`${brand}.json`);
+        const data = await res.json();
+        allData = {...allData,...data};
     }
-  }
-  renderSpecs(filtered);
+    torqueData = allData;
+    populateVehicleDropdown();
 }
 
-function toggleUnits() {
-  const unitBtn = document.getElementById("unitBtn");
-  unit = unit === "ft" ? "nm" : "ft";
-  localStorage.setItem("unit", unit);
-  unitBtn.textContent = "Units: " + (unit === "ft" ? "ft-lb" : "Nm");
-  renderSpecs(currentSpecs);
+function populateVehicleDropdown(){
+    const vehicleSelect = document.getElementById("vehicleSelect");
+    Object.keys(torqueData).forEach(key=>{
+        const option = document.createElement("option");
+        option.value = key;
+        const v = torqueData[key].models.join(", ");
+        option.text = `${key.toUpperCase()} (${v})`;
+        vehicleSelect.appendChild(option);
+    });
 }
 
-function convert(value) {
-  if (typeof value === "number") {
-    return unit === "ft" ? value + " ft-lb" : Math.round(value * 1.356) + " Nm";
-  }
-  return value; // string values like oil type
+function loadEngines(){
+    currentVehicle = document.getElementById("vehicleSelect").value;
+    currentEngine = "";
+    const engineSelect = document.getElementById("engineSelect");
+    engineSelect.innerHTML = '<option value="">Select Engine</option>';
+    if(currentVehicle && torqueData[currentVehicle].engines){
+        Object.keys(torqueData[currentVehicle].engines).forEach(eng=>{
+            const option = document.createElement("option");
+            option.value = eng;
+            option.text = eng;
+            engineSelect.appendChild(option);
+        });
+    }
 }
 
-function toggleFav(key) {
-  favorites[key] = !favorites[key];
-  localStorage.setItem("favorites", JSON.stringify(favorites));
-  renderSpecs(currentSpecs);
+function loadSpecs(){
+    const engineSelect = document.getElementById("engineSelect");
+    currentEngine = engineSelect.value;
+    if(currentVehicle && currentEngine){
+        currentSpecs = torqueData[currentVehicle].engines[currentEngine];
+        renderSpecs(currentSpecs);
+    }
+}
+
+function renderSpecs(specs){
+    const results = document.getElementById("results");
+    results.innerHTML = "";
+    for(const category in specs){
+        const catData = specs[category];
+        const catDiv = document.createElement("div");
+        catDiv.className="card";
+        const h = document.createElement("h3");
+        h.innerText = category.toUpperCase();
+        catDiv.appendChild(h);
+        for(const part in catData){
+            const val = catData[part];
+            const display = val!==null ? convert(val) : "N/A";
+            const favKey = currentVehicle+currentEngine+part;
+            const star = favorites[favKey] ? "⭐" : "☆";
+            const div = document.createElement("div");
+            div.className="spec";
+            div.innerHTML=`<span><strong>${part}</strong></span><span>${display}<span class="star" onclick="toggleFav('${favKey}')">${star}</span></span>`;
+            catDiv.appendChild(div);
+        }
+        results.appendChild(catDiv);
+    }
+}
+
+function filterSpecs(){
+    const term = document.getElementById("search").value.toLowerCase();
+    if(!currentSpecs) return;
+    const filtered = {};
+    for(const cat in currentSpecs){
+        filtered[cat]={};
+        for(const part in currentSpecs[cat]){
+            if(part.toLowerCase().includes(term)){
+                filtered[cat][part]=currentSpecs[cat][part];
+            }
+        }
+        if(Object.keys(filtered[cat]).length===0) delete filtered[cat];
+    }
+    renderSpecs(filtered);
+}
+
+function toggleUnits(){
+    unit = unit==="ft"?"nm":"ft";
+    localStorage.setItem("unit",unit);
+    document.getElementById("unitBtn").textContent="Units: "+(unit==="ft"?"ft-lb":"Nm");
+    renderSpecs(currentSpecs);
+}
+
+function convert(value){
+    if(unit==="ft") return value+" ft-lb";
+    return Math.round(value*1.356)+" Nm";
+}
+
+function toggleFav(key){
+    favorites[key]=!favorites[key];
+    localStorage.setItem("favorites",JSON.stringify(favorites));
+    renderSpecs(currentSpecs);
 }
 
 // ---------------- INIT ----------------
-document.getElementById("vehicleSelect").addEventListener("change", loadSpecs);
-document.getElementById("search").addEventListener("input", filterSpecs);
-document.getElementById("unitBtn").addEventListener("click", toggleUnits);
-document.getElementById("unitBtn").textContent = "Units: " + (unit === "ft" ? "ft-lb" : "Nm");
-
+loadBrandData();
+document.getElementById("unitBtn").textContent = "Units: "+(unit==="ft"?"ft-lb":"Nm");
 </script>
+
 </body>
 </html>
