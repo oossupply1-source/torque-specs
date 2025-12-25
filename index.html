@@ -1,14 +1,106 @@
-html
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Torque Specs</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Torque Specs</title>
+
+<style>
+body {
+  font-family: system-ui, -apple-system;
+  background: #111;
+  color: #fff;
+  margin: 0;
+  padding: 16px;
+}
+h1 {
+  text-align: center;
+}
+select, input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+.card {
+  background: #1e1e1e;
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 12px;
+}
+.spec {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #333;
+}
+.spec:last-child {
+  border-bottom: none;
+}
+</style>
 </head>
+
 <body>
-  <h1>Torque Specs App</h1>
-  <p>If you can read this, your app is working.</p>
+
+<h1>Torque Specs</h1>
+
+<select id="vehicleSelect" onchange="loadSpecs()">
+  <option value="">Select Vehicle</option>
+  <option value="is300">2001 Lexus IS300 – 2JZ-GE</option>
+</select>
+
+<input
+  type="text"
+  id="search"
+  placeholder="Search (oil, lug, spark...)"
+  oninput="filterSpecs()"
+/>
+
+<div id="results"></div>
+
+<script>
+const data = {
+  is300: {
+    "Oil Drain Plug": "30 ft-lb",
+    "Lug Nuts": "76 ft-lb",
+    "Spark Plugs": "13 ft-lb",
+    "Valve Cover Bolts": "53 in-lb",
+    "Intake Manifold": "29 ft-lb"
+  }
+};
+
+let currentSpecs = {};
+
+function loadSpecs() {
+  const vehicle = document.getElementById("vehicleSelect").value;
+  currentSpecs = data[vehicle] || {};
+  renderSpecs(currentSpecs);
+}
+
+function renderSpecs(specs) {
+  const results = document.getElementById("results");
+  results.innerHTML = "";
+  for (const part in specs) {
+    const div = document.createElement("div");
+    div.className = "card spec";
+    div.innerHTML = `<strong>${part}</strong><span>${specs[part]}</span>`;
+    results.appendChild(div);
+  }
+}
+
+function filterSpecs() {
+  const term = document.getElementById("search").value.toLowerCase();
+  const filtered = {};
+  for (const part in currentSpecs) {
+    if (part.toLowerCase().includes(term)) {
+      filtered[part] = currentSpecs[part];
+    }
+  }
+  renderSpecs(filtered);
+}
+</script>
+
 </body>
 </html>
