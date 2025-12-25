@@ -1,34 +1,51 @@
+// ---------------- VIN decoding ----------------
 async function searchVin(){
     const vin = document.getElementById("vinInput").value.trim().toUpperCase();
+    if(!vin) return alert("Enter a VIN");
+
+    // Load VIN mapping JSON
     const mappingRes = await fetch('vinMapping.json');
     const vinMapping = await mappingRes.json();
+
+    // Extract WMI (first 3 chars) and model year (10th char)
     const wmi = vin.slice(0,3);
     const yearChar = vin[9];
-    const year = decodeVinYear(yearChar); // function below
+    const year = decodeVinYear(yearChar);
+    if(!year) return alert("Invalid VIN year code");
+
     const vehicleData = vinMapping[wmi];
     if(!vehicleData) return alert("VIN not recognized");
+
+    // Loop through models and year ranges
     for(const model in vehicleData){
         for(const range in vehicleData[model]){
             const [start,end] = range.split("-").map(Number);
             if(year >= start && year <= end){
                 const engines = vehicleData[model][range];
-                const engineCode = Object.keys(engines)[0];
+                const engineCode = Object.keys(engines)[0]; // pick first engine for now
                 const jsonKey = engines[engineCode];
+
+                // Select vehicle and engine in your app
                 document.getElementById("vehicleSelect").value = jsonKey.split("_")[0];
-                loadEngines();
+                loadEngines(); // populate engines dropdown
                 document.getElementById("engineSelect").value = engineCode;
-                loadSpecs();
+                loadSpecs(); // load torque & oil specs
                 return;
             }
         }
     }
+
     alert("VIN not supported");
 }
 
-// Helper to decode 10th VIN character → year
+// ---------------- Decode 10th VIN character → year ----------------
 function decodeVinYear(c){
-    const map = {A:1980,B:1981,C:1982,D:1983,E:1984,F:1985,G:1986,H:1987,J:1988,K:1989,L:1990,M:1991,N:1992,P:1993,R:1994,S:1995,T:1996,V:1997,W:1998,X:1999,Y:2000,
-                 1:2001,2:2002,3:2003,4:2004,5:2005,6:2006,7:2007,8:2008,9:2009,
-                 A2020:2020,B2021:2021,C2022:2022,D2023:2023,E2024:2024,F2025:2025};
+    const map = {
+        "A":1980,"B":1981,"C":1982,"D":1983,"E":1984,"F":1985,"G":1986,"H":1987,"J":1988,"K":1989,
+        "L":1990,"M":1991,"N":1992,"P":1993,"R":1994,"S":1995,"T":1996,"V":1997,"W":1998,"X":1999,"Y":2000,
+        "1":2001,"2":2002,"3":2003,"4":2004,"5":2005,"6":2006,"7":2007,"8":2008,"9":2009,
+        "A1":2010,"B1":2011,"C1":2012,"D1":2013,"E1":2014,"F1":2015,"G1":2016,"H1":2017,"J1":2018,"K1":2019,
+        "L1":2020,"M1":2021,"N1":2022,"P1":2023,"R1":2024,"S1":2025
+    };
     return map[c] || null;
 }
