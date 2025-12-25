@@ -64,40 +64,165 @@ button.active {
 
 <h1>Torque Specs</h1>
 
- <select id="vehicleSelect" onchange="loadSpecs()">
-  <option value="">Select Vehicle</option>
+const torqueData = {
 
-  <option value="lexus_is_1999_2005">Lexus IS (1999–2005)</option>
-  <option value="lexus_es_1990_2025">Lexus ES (1990–2025)</option>
-  <option value="lexus_gs_1993_2020">Lexus GS (1993–2020)</option>
-  <option value="lexus_ls_1990_2025">Lexus LS (1990–2025)</option>
-  <option value="lexus_rx_1999_2025">Lexus RX (1999–2025)</option>
-  <option value="lexus_gx_2003_2025">Lexus GX (2003–2025)</option>
-  <option value="lexus_lx_1996_2025">Lexus LX (1996–2025)</option>
+  // =====================
+  // LEXUS
+  // =====================
 
-  <option value="toyota_corolla_1990_2025">Toyota Corolla (1990–2025)</option>
-  <option value="toyota_camry_1990_2025">Toyota Camry (1990–2025)</option>
-  <option value="toyota_prius_1997_2025">Toyota Prius (1997–2025)</option>
-  <option value="toyota_rav4_1996_2025">Toyota RAV4 (1996–2025)</option>
-  <option value="toyota_4runner_1990_2025">Toyota 4Runner (1990–2025)</option>
-  <option value="toyota_tacoma_1995_2025">Toyota Tacoma (1995–2025)</option>
-  <option value="toyota_tundra_2000_2025">Toyota Tundra (2000–2025)</option>
-</select> 
+  lexus_is: {
+    years: "1999–2005",
+    engines: {
+      "2JZ-GE": {
+        engine: {
+          "Oil Drain Plug": 30,
+          "Spark Plugs": 13,
+          "Valve Cover Bolts (in-lb)": 53,
+          "Intake Manifold": 29,
+          "Exhaust Manifold": 34,
+          "Crank Pulley Bolt": 181
+        },
+        transmission: {
+          "Transmission Pan Bolts": 69,
+          "Driveshaft Bolts": 54
+        },
+        suspension: {
+          "Front Strut Bolts": 156,
+          "Rear Shock Bolts": 101
+        },
+        wheels: {
+          "Lug Nuts": 76
+        }
+      }
+    }
+  },
 
-<input
-  type="text"
-  id="search"
-  placeholder="Search (oil, lug, spark...)"
-  oninput="filterSpecs()"
-/>
+  lexus_es: {
+    years: "1990–2025",
+    engines: {
+      "1MZ-FE / 2GR-FE": {
+        engine: {
+          "Oil Drain Plug": 30,
+          "Spark Plugs": 13,
+          "Intake Manifold": 21
+        },
+        wheels: { "Lug Nuts": 76 }
+      }
+    }
+  },
 
-<button id="unitBtn" onclick="toggleUnits()">Units: ft-lb</button>
+  lexus_gs: {
+    years: "1993–2020",
+    engines: {
+      "2JZ-GE / 1UZ-FE / 3UZ-FE": {
+        engine: {
+          "Oil Drain Plug": 30,
+          "Spark Plugs": 13,
+          "Crank Pulley Bolt": 181
+        },
+        wheels: { "Lug Nuts": 76 }
+      }
+    }
+  },
 
-<div id="results"></div>
+  lexus_rx: {
+    years: "1999–2025",
+    engines: {
+      "1MZ-FE / 2GR-FE": {
+        engine: {
+          "Oil Drain Plug": 30,
+          "Spark Plugs": 13
+        },
+        wheels: { "Lug Nuts": 76 }
+      }
+    }
+  },
 
-<p class="small">Works offline • Saved on your phone</p>
+  // =====================
+  // TOYOTA
+  // =====================
 
-<script>
+  toyota_camry: {
+    years: "1990–2025",
+    engines: {
+      "5S-FE / 2AZ-FE / 2GR-FE": {
+        engine: {
+          "Oil Drain Plug": 30,
+          "Spark Plugs": 13,
+          "Timing Cover Bolts": 80
+        },
+        transmission: {
+          "Transmission Pan Bolts": 69
+        },
+        wheels: { "Lug Nuts": 76 }
+      }
+    }
+  },
+
+  toyota_corolla: {
+    years: "1990–2025",
+    engines: {
+      "4A-FE / 1ZZ-FE / 2ZR-FE": {
+        engine: {
+          "Oil Drain Plug": 27,
+          "Spark Plugs": 13,
+          "Valve Cover Bolts (in-lb)": 53
+        },
+        wheels: { "Lug Nuts": 76 }
+      }
+    }
+  },
+
+  toyota_4runner: {
+    years: "1990–2025",
+    engines: {
+      "3VZ-E / 5VZ-FE / 1GR-FE": {
+        engine: {
+          "Oil Drain Plug": 30,
+          "Spark Plugs": 13
+        },
+        suspension: {
+          "Lower Ball Joint": 118,
+          "Upper Control Arm": 85
+        },
+        wheels: { "Lug Nuts": 83 }
+      }
+    }
+  },
+
+  toyota_tacoma: {
+    years: "1995–2025",
+    engines: {
+      "5VZ-FE / 1GR-FE": {
+        engine: {
+          "Oil Drain Plug": 30,
+          "Spark Plugs": 13
+        },
+        suspension: {
+          "Front Strut Bolts": 156
+        },
+        wheels: { "Lug Nuts": 83 }
+      }
+    }
+  },
+
+  toyota_tundra: {
+    years: "2000–2025",
+    engines: {
+      "2UZ-FE / 3UR-FE": {
+        engine: {
+          "Oil Drain Plug": 39,
+          "Spark Plugs": 13
+        },
+        axles: {
+          "Rear Axle Shaft Bolts": 59
+        },
+        wheels: { "Lug Nuts": 97 }
+      }
+    }
+  }
+};
+  
 // ---------------- DATA ----------------
 const torqueData = {
 
