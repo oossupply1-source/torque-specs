@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Torque Specs</title>
-
 <style>
 body {
   font-family: system-ui, -apple-system;
@@ -59,172 +58,88 @@ button.active {
 }
 </style>
 </head>
-
 <body>
 
 <h1>Torque Specs</h1>
 
+<select id="vehicleSelect">
+  <option value="">Select Vehicle</option>
+  <option value="toyota_2AZ_FE">Toyota 2AZ-FE (Camry/RAV4)</option>
+  <option value="toyota_2GR_FE">Toyota/Lexus 2GR-FE (3.5L V6)</option>
+  <option value="toyota_2UZ_FE">Toyota 2UZ-FE (4.7L V8)</option>
+  <option value="lexus_5_0L_V8">Lexus 5.0L V8 (LS 2007–2017)</option>
+</select>
+
+<input type="text" id="search" placeholder="Search parts...">
+<button id="unitBtn">Toggle Units</button>
+
+<div id="results"></div>
+
+<script>
 // ---------------- DATA ----------------
-  
 const torqueData = {
-
-  // =====================
-  // LEXUS
-  // =====================
-
-  lexus_is: {
-    years: "1999–2005",
-    engines: {
-      "2JZ-GE": {
-        engine: {
-          "Oil Drain Plug": 30,
-          "Spark Plugs": 13,
-          "Valve Cover Bolts (in-lb)": 53,
-          "Intake Manifold": 29,
-          "Exhaust Manifold": 34,
-          "Crank Pulley Bolt": 181
-        },
-        transmission: {
-          "Transmission Pan Bolts": 69,
-          "Driveshaft Bolts": 54
-        },
-        suspension: {
-          "Front Strut Bolts": 156,
-          "Rear Shock Bolts": 101
-        },
-        wheels: {
-          "Lug Nuts": 76
-        }
-      }
-    }
+  "toyota_2AZ_FE": {
+    "name": "Toyota 2AZ-FE (2.4L)",
+    "Oil Drain Plug": 30,
+    "Oil Filter": 13,
+    "Valve Cover Bolts": 8,
+    "Oil Capacity With Filter (qt)": 4.3,
+    "Oil Capacity Dry Fill (qt)": 5.0
+  },
+  "toyota_2GR_FE": {
+    "name": "Toyota/Lexus 2GR-FE (3.5L V6)",
+    "Oil Drain Plug": 29,
+    "Spark Plugs": 11,
+    "Oil Capacity With Filter (qt)": 6.4,
+    "Recommended Oil": "SAE 0W-20"
+  },
+  "toyota_2UZ_FE": {
+    "name": "Toyota 2UZ-FE (4.7L V8)",
+    "Oil Drain Plug": 29,
+    "Oil Filter Housing Cap": 10
+  },
+  "lexus_5_0L_V8": {
+    "name": "Lexus 5.0L V8 (LS 2007–2017)",
+    "Oil Drain Plug": 29,
+    "Valve Cover Bolts": 7,
+    "Oil Pan Bolts": 8
+  },
+  // Honda
+  "honda_k_series": {
+    "name": "Honda K Series (K20/K24)",
+    "Oil Drain Plug": 29,
+    "Oil Filter": 9,
+    "Oil Capacity With Filter (qt)": 4.4,
+    "Oil Capacity Without Filter (qt)": 4.2,
+    "Recommended Oil": "SAE 0W-20"
+  },
+  "honda_civic_k20c2": {
+    "name": "Honda Civic 2.0L (K20C2)",
+    "Oil Drain Plug": 30,
+    "Oil Filter": 9,
+    "Oil Capacity With Filter (qt)": 4.4,
+    "Oil Capacity Without Filter (qt)": 4.2,
+    "Recommended Oil": "SAE 0W-20"
   },
 
-  lexus_es: {
-    years: "1990–2025",
-    engines: {
-      "1MZ-FE / 2GR-FE": {
-        engine: {
-          "Oil Drain Plug": 30,
-          "Spark Plugs": 13,
-          "Intake Manifold": 21
-        },
-        wheels: { "Lug Nuts": 76 }
-      }
-    }
+  // BMW
+  "bmw_n55_b58": {
+    "name": "BMW N55 / B58 6-Cyl",
+    "Oil Drain Plug": 18,
+    "Oil Filter Cap": 18,
+    "Oil Capacity (approx)": 6.9,
+    "Oil Type": "SAE 5W-30 / BMW LL-04"
   },
-
-  lexus_gs: {
-    years: "1993–2020",
-    engines: {
-      "2JZ-GE / 1UZ-FE / 3UZ-FE": {
-        engine: {
-          "Oil Drain Plug": 30,
-          "Spark Plugs": 13,
-          "Crank Pulley Bolt": 181
-        },
-        wheels: { "Lug Nuts": 76 }
-      }
-    }
-  },
-
-  lexus_rx: {
-    years: "1999–2025",
-    engines: {
-      "1MZ-FE / 2GR-FE": {
-        engine: {
-          "Oil Drain Plug": 30,
-          "Spark Plugs": 13
-        },
-        wheels: { "Lug Nuts": 76 }
-      }
-    }
-  },
-
-  // =====================
-  // TOYOTA
-  // =====================
-
-  toyota_camry: {
-    years: "1990–2025",
-    engines: {
-      "5S-FE / 2AZ-FE / 2GR-FE": {
-        engine: {
-          "Oil Drain Plug": 30,
-          "Spark Plugs": 13,
-          "Timing Cover Bolts": 80
-        },
-        transmission: {
-          "Transmission Pan Bolts": 69
-        },
-        wheels: { "Lug Nuts": 76 }
-      }
-    }
-  },
-
-  toyota_corolla: {
-    years: "1990–2025",
-    engines: {
-      "4A-FE / 1ZZ-FE / 2ZR-FE": {
-        engine: {
-          "Oil Drain Plug": 27,
-          "Spark Plugs": 13,
-          "Valve Cover Bolts (in-lb)": 53
-        },
-        wheels: { "Lug Nuts": 76 }
-      }
-    }
-  },
-
-  toyota_4runner: {
-    years: "1990–2025",
-    engines: {
-      "3VZ-E / 5VZ-FE / 1GR-FE": {
-        engine: {
-          "Oil Drain Plug": 30,
-          "Spark Plugs": 13
-        },
-        suspension: {
-          "Lower Ball Joint": 118,
-          "Upper Control Arm": 85
-        },
-        wheels: { "Lug Nuts": 83 }
-      }
-    }
-  },
-
-  toyota_tacoma: {
-    years: "1995–2025",
-    engines: {
-      "5VZ-FE / 1GR-FE": {
-        engine: {
-          "Oil Drain Plug": 30,
-          "Spark Plugs": 13
-        },
-        suspension: {
-          "Front Strut Bolts": 156
-        },
-        wheels: { "Lug Nuts": 83 }
-      }
-    }
-  },
-
-  toyota_tundra: {
-    years: "2000–2025",
-    engines: {
-      "2UZ-FE / 3UR-FE": {
-        engine: {
-          "Oil Drain Plug": 39,
-          "Spark Plugs": 13
-        },
-        axles: {
-          "Rear Axle Shaft Bolts": 59
-        },
-        wheels: { "Lug Nuts": 97 }
-      }
-    }
+  
+  // Ford (generic common)
+  "ford_common_oil_change": {
+    "name": "Ford Common Engines",
+    "Oil Drain Plug": 33,
+    "Oil Filter": 11,
+    "Oil Capacity With Filter (qt)": 5.7,
+    "Oil Type": "SAE 5W-30"
   }
 };
-  
 // ---------------- DATA ----------------
 
 // ---------------- STATE ----------------
@@ -235,8 +150,9 @@ let favorites = JSON.parse(localStorage.getItem("favorites") || "{}");
 
 // ---------------- FUNCTIONS ----------------
 function loadSpecs() {
+  const vehicleSelect = document.getElementById("vehicleSelect");
   currentVehicle = vehicleSelect.value;
-  currentSpecs = torqueData[currentVehicle] || {};
+  currentSpecs = currentVehicle ? torqueData[currentVehicle] : {};
   renderSpecs(currentSpecs);
 }
 
@@ -244,6 +160,7 @@ function renderSpecs(specs) {
   const results = document.getElementById("results");
   results.innerHTML = "";
   for (const part in specs) {
+    if (part === "name") continue; // skip name property
     const value = specs[part];
     const display = convert(value);
     const favKey = currentVehicle + part;
@@ -254,7 +171,7 @@ function renderSpecs(specs) {
     div.innerHTML = `
       <span><strong>${part}</strong></span>
       <span>
-        ${display}
+        ${display} 
         <span class="star" onclick="toggleFav('${favKey}')">${star}</span>
       </span>
     `;
@@ -263,7 +180,8 @@ function renderSpecs(specs) {
 }
 
 function filterSpecs() {
-  const term = search.value.toLowerCase();
+  const searchInput = document.getElementById("search");
+  const term = searchInput.value.toLowerCase();
   const filtered = {};
   for (const part in currentSpecs) {
     if (part.toLowerCase().includes(term)) {
@@ -274,6 +192,7 @@ function filterSpecs() {
 }
 
 function toggleUnits() {
+  const unitBtn = document.getElementById("unitBtn");
   unit = unit === "ft" ? "nm" : "ft";
   localStorage.setItem("unit", unit);
   unitBtn.textContent = "Units: " + (unit === "ft" ? "ft-lb" : "Nm");
@@ -281,8 +200,10 @@ function toggleUnits() {
 }
 
 function convert(value) {
-  if (unit === "ft") return value + " ft-lb";
-  return Math.round(value * 1.356) + " Nm";
+  if (typeof value === "number") {
+    return unit === "ft" ? value + " ft-lb" : Math.round(value * 1.356) + " Nm";
+  }
+  return value; // string values like oil type
 }
 
 function toggleFav(key) {
@@ -292,8 +213,11 @@ function toggleFav(key) {
 }
 
 // ---------------- INIT ----------------
-unitBtn.textContent = "Units: " + (unit === "ft" ? "ft-lb" : "Nm");
-</script>
+document.getElementById("vehicleSelect").addEventListener("change", loadSpecs);
+document.getElementById("search").addEventListener("input", filterSpecs);
+document.getElementById("unitBtn").addEventListener("click", toggleUnits);
+document.getElementById("unitBtn").textContent = "Units: " + (unit === "ft" ? "ft-lb" : "Nm");
 
+</script>
 </body>
 </html>
