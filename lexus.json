@@ -1,0 +1,20 @@
+{
+  "lexus_2GR_FE_2006_2021": {
+    "models": ["RX350","ES350","IS350"],
+    "years": "2006–2021",
+    "market": "US",
+    "oil": {"capacity_quarts": 6.4, "type": "SAE 0W‑20 / 5W‑30"},
+    "torque": {"oil_drain_plug": 30, "spark_plugs": 13},
+    "transmission": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null},
+    "differential": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null}
+  },
+  "lexus_T24A_FTS_2023_2025": {
+    "models": ["RX350"],
+    "years": "2023–2025",
+    "market": "US",
+    "oil": {"capacity_quarts": 5.6, "type": "SAE 0W‑20"},
+    "torque": {"oil_drain_plug": 30},
+    "transmission": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null},
+    "differential": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null}
+  }
+}
