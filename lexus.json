@@ -1,20 +1,181 @@
 {
-  "lexus_2GR_FE_2006_2021": {
-    "models": ["RX350","ES350","IS350"],
-    "years": "2006–2021",
+  "lexus_es_250_2019_2025": {
+    "models": ["ES 250"],
+    "years": "2019–2025",
     "market": "US",
-    "oil": {"capacity_quarts": 6.4, "type": "SAE 0W‑20 / 5W‑30"},
-    "torque": {"oil_drain_plug": 30, "spark_plugs": 13},
-    "transmission": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null},
-    "differential": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null}
+    "powertrain": {
+      "engine_name": "A25A-FKS 2.5L Inline-4",
+      "transmission_name": "8-Speed Automatic (UA80E)",
+      "differential_name": "Front Differential (FWD Transaxle)"
+    },
+    "engine": {
+      "Oil Drain Plug": 30,
+      "Oil Capacity (qt)": 5.1,
+      "Oil Type": "SAE 0W-20",
+      "Valve Cover Bolts (in-lb)": 89,
+      "Spark Plugs": 13
+    }
   },
-  "lexus_T24A_FTS_2023_2025": {
-    "models": ["RX350"],
-    "years": "2023–2025",
+
+  "lexus_es_350_2007_2025": {
+    "models": ["ES 350"],
+    "years": "2007–2025",
     "market": "US",
-    "oil": {"capacity_quarts": 5.6, "type": "SAE 0W‑20"},
-    "torque": {"oil_drain_plug": 30},
-    "transmission": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null},
-    "differential": {"drain_plug": null, "fluid_type": null, "capacity_quarts": null}
+    "powertrain": {
+      "engine_name": "2GR-FE / 2GR-FKS 3.5L V6",
+      "transmission_name": "6-Speed / 8-Speed Automatic (U660E / UA80E)",
+      "differential_name": "Front Differential (FWD Transaxle)"
+    },
+    "engine": {
+      "Oil Drain Plug": 30,
+      "Oil Capacity (qt)": 5.7,
+      "Oil Type": "SAE 0W-20",
+      "Valve Cover Bolts (in-lb)": 89,
+      "Spark Plugs": 13
+    }
+  },
+
+  "lexus_is_250_2006_2013": {
+    "models": ["IS 250"],
+    "years": "2006–2013",
+    "market": "US",
+    "powertrain": {
+      "engine_name": "4GR-FSE 2.5L V6",
+      "transmission_name": "6-Speed Automatic (A760E / A761E)",
+      "differential_name": "Rear Differential (RWD) / Center + Rear (AWD)"
+    },
+    "engine": {
+      "Oil Drain Plug": 30,
+      "Oil Capacity (qt)": 6.0,
+      "Oil Type": "SAE 0W-20",
+      "Valve Cover Bolts (in-lb)": 89,
+      "Spark Plugs": 13
+    }
+  },
+
+  "lexus_is_350_2006_2025": {
+    "models": ["IS 350"],
+    "years": "2006–2025",
+    "market": "US",
+    "powertrain": {
+      "engine_name": "2GR-FSE / 2GR-FKS 3.5L V6",
+      "transmission_name": "6-Speed / 8-Speed Automatic (A760E / AA80E)",
+      "differential_name": "Rear Differential (RWD) / Center + Rear (AWD)"
+    },
+    "engine": {
+      "Oil Drain Plug": 30,
+      "Oil Capacity (qt)": 6.0,
+      "Oil Type": "SAE 0W-20",
+      "Valve Cover Bolts (in-lb)": 89,
+      "Spark Plugs": 13
+    }
+  },
+
+  "lexus_rx_350_2007_2025": {
+    "models": ["RX 350"],
+    "years": "2007–2025",
+    "market": "US",
+    "powertrain": {
+      "engine_name": "2GR-FE / 2GR-FKS 3.5L V6",
+      "transmission_name": "6-Speed / 8-Speed Automatic (U660E / UA80F)",
+      "differential_name": "Front + Rear Differential (AWD)"
+    },
+    "engine": {
+      "Oil Drain Plug": 30,
+      "Oil Capacity (qt)": 5.7,
+      "Oil Type": "SAE 0W-20",
+      "Valve Cover Bolts (in-lb)": 89,
+      "Spark Plugs": 13
+    }
+  },
+
+  "lexus_rx_450h_2010_2025": {
+    "models": ["RX 450h"],
+    "years": "2010–2025",
+    "market": "US",
+    "powertrain": {
+      "engine_name": "2GR-FXE 3.5L V6 Hybrid",
+      "transmission_name": "eCVT (Hybrid Transaxle)",
+      "differential_name": "Front + Rear Electric AWD Differential"
+    },
+    "engine": {
+      "Oil Drain Plug": 30,
+      "Oil Capacity (qt)": 4.8,
+      "Oil Type": "SAE 0W-16",
+      "Valve Cover Bolts (in-lb)": 89,
+      "Spark Plugs": 13
+    }
+  },
+
+  "lexus_ls_460_2007_2017": {
+    "models": ["LS 460"],
+    "years": "2007–2017",
+    "market": "US",
+    "powertrain": {
+      "engine_name": "1UR-FE / 1UR-FSE 4.6L V8",
+      "transmission_name": "8-Speed Automatic (AA80E)",
+      "differential_name": "Rear Differential (RWD)"
+    },
+    "engine": {
+      "Oil Drain Plug": 40,
+      "Oil Capacity (qt)": 8.5,
+      "Oil Type": "SAE 0W-20",
+      "Valve Cover Bolts (in-lb)": 89,
+      "Spark Plugs": 13
+    }
+  },
+
+  "lexus_gx_460_2010_2025": {
+    "models": ["GX 460"],
+    "years": "2010–2025",
+    "market": "US",
+    "powertrain": {
+      "engine_name": "1UR-FE 4.6L V8",
+      "transmission_name": "6-Speed Automatic (A760F)",
+      "differential_name": "Front + Rear Differential (4WD)"
+    },
+    "engine": {
+      "Oil Drain Plug": 40,
+      "Oil Capacity (qt)": 8.0,
+      "Oil Type": "SAE 0W-20",
+      "Valve Cover Bolts (in-lb)": 89,
+      "Spark Plugs": 13
+    }
+  },
+
+  "lexus_lx_570_2008_2025": {
+    "models": ["LX 570"],
+    "years": "2008–2025",
+    "market": "US",
+    "powertrain": {
+      "engine_name": "3UR-FE 5.7L V8",
+      "transmission_name": "8-Speed Automatic (AA80F)",
+      "differential_name": "Front + Rear Differential (Full-Time 4WD)"
+    },
+    "engine": {
+      "Oil Drain Plug": 40,
+      "Oil Capacity (qt)": 8.8,
+      "Oil Type": "SAE 0W-20",
+      "Valve Cover Bolts (in-lb)": 89,
+      "Spark Plugs": 13
+    }
+  },
+
+  "lexus_lc_500_2017_2025": {
+    "models": ["LC 500"],
+    "years": "2017–2025",
+    "market": "US",
+    "powertrain": {
+      "engine_name": "2UR-GSE 5.0L V8",
+      "transmission_name": "10-Speed Automatic (AA80E)",
+      "differential_name": "Rear Differential (Torsen LSD)"
+    },
+    "engine": {
+      "Oil Drain Plug": 40,
+      "Oil Capacity (qt)": 8.0,
+      "Oil Type": "SAE 0W-20",
+      "Valve Cover Bolts (in-lb)": 89,
+      "Spark Plugs": 13
+    }
   }
 }
