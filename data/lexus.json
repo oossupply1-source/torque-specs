@@ -27,6 +27,30 @@
       "Fill Plug": 36
     }
   },
+  "is350_2006_2021": {
+    "models": ["IS350","IS 350","IS-350"],
+    "years": "2006-2021",
+    "powertrain": {
+      "engine_name": "2GR-FSE",
+      "transmission_name": "U660E / U760F",
+      "differential_name": "AWD Rear Differential"
+    },
+    "engine": {
+      "Oil Drain Plug": 30,
+      "Oil Filter": 13,
+      "Spark Plugs": 13,
+      "Oil Capacity (qt)": 6.4,
+      "Oil Type": "0W-20"
+    },
+    "transmission": {
+      "Fluid Type": "Toyota WS",
+      "Capacity (qt)": 12.0
+    },
+    "differential": {
+      "Fluid Type": "75W-85",
+      "Capacity (qt)": 1.0
+    }
+  },
   "rx350_2007_2015": {
     "models": ["RX350","RX 350","RX-350"],
     "years": "2007-2015",
