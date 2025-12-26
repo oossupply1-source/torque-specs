@@ -1,166 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Torque Specs</title>
 
 <style>
 body {
-  font-family: system-ui, -apple-system;
-  background: #0f0f0f;
-  color: #fff;
-  margin: 0;
-  padding: 16px;
+  background:#0f0f0f;
+  color:#fff;
+  font-family:system-ui,-apple-system;
+  padding:16px;
 }
-h1 {
-  text-align: center;
-}
-select, button {
-  width: 100%;
-  padding: 12px;
-  margin: 6px 0;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
+input, select, button {
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border-radius:8px;
+  border:none;
+  font-size:16px;
 }
 button {
-  background: #222;
-  color: #fff;
+  background:#222;
+  color:#fff;
 }
 .card {
-  background: #1b1b1b;
-  border-radius: 10px;
-  padding: 12px;
-  margin-top: 10px;
+  background:#1b1b1b;
+  border-radius:10px;
+  padding:12px;
+  margin-top:10px;
 }
 .spec {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-  border-bottom: 1px solid #333;
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  border-bottom:1px solid #333;
 }
-.spec:last-child {
-  border-bottom: none;
-}
-h3 {
-  margin-top: 0;
-  color: #00aaff;
-}
+.spec:last-child { border-bottom:none; }
 </style>
 </head>
 
 <body>
 
-<h1>Torque Specs</h1>
+<h2>Torque Specs</h2>
+
+<input id="vinInput" placeholder="Enter VIN">
+<button onclick="searchVin()">Decode VIN</button>
 
 <select id="vehicleSelect" onchange="loadSpecs()">
   <option value="">Select Vehicle</option>
-  <option value="lexus_is350_2018">Lexus IS 350 (2018)</option>
 </select>
 
-<button onclick="toggleUnits()" id="unitBtn">Units: ft-lb</button>
+<button id="unitBtn" onclick="toggleUnits()">Units: ft-lb</button>
 
 <div id="results"></div>
 
 <script>
-// ================= DATA =================
+let unit = "ft";
+let brandData = {};
 
-const torqueData = {
-  "lexus_is350_2018": {
-    powertrain: {
-      engine_name: "3.5L V6 2GR-FKS",
-      transmission_name: "8-Speed Automatic (UA80E)",
-      differential_name: "Rear Open Differential"
-    },
-    engine: {
-      "Oil Drain Plug": 30,
-      "Oil Capacity (qt)": 6.4,
-      "Oil Type": "SAE 0W-20",
-      "Valve Cover Bolts (in-lb)": 89,
-      "Oil Filter Torque": 18,
-      "Spark Plugs": 13
-    },
-    transmission: {
-      "Fluid Type": "Toyota WS ATF",
-      "Drain Plug": 36,
-      "Fill Plug": 36
-    },
-    differential: {
-      "Fluid Type": "SAE 75W-85 GL-5",
-      "Drain Plug": 49,
-      "Fill Plug": 49
+async function searchVin(){
+  const vin = vinInput.value.trim().toUpperCase();
+  if(vin.length !== 17) return alert("VIN must be 17 characters");
+
+  const res = await fetch(
+    `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`
+  );
+  const data = await res.json();
+
+  const get = k => data.Results.find(r=>r.Variable===k)?.Value;
+  const make = get("Make")?.toLowerCase();
+  const model = get("Model");
+
+  if(!make) return alert("VIN not supported");
+
+  loadBrand(make, model);
+}
+
+async function loadBrand(make, model){
+  const res = await fetch(`data/${make}.json`);
+  brandData = await res.json();
+
+  vehicleSelect.innerHTML = "";
+  for(const key in brandData){
+    if(brandData[key].models.includes(model)){
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = brandData[key].models[0];
+      vehicleSelect.appendChild(opt);
     }
   }
-};
+  loadSpecs();
+}
 
-// ================= STATE =================
-let unit = "ft";
+function loadSpecs(){
+  const v = brandData[vehicleSelect.value];
+  if(!v) return;
 
-// ================= FUNCTIONS =================
-
-function loadSpecs() {
-  const vehicleKey = vehicleSelect.value;
-  const data = torqueData[vehicleKey];
-  if (!data) return;
-
-  const results = document.getElementById("results");
   results.innerHTML = "";
-
-  renderPowertrain(data.powertrain);
-  renderSection("Engine Specs", data.engine);
-  renderSection("Transmission Specs", data.transmission);
-  renderSection("Differential Specs", data.differential);
+  render("Powertrain", {
+    Engine: v.powertrain.engine_name,
+    Transmission: v.powertrain.transmission_name,
+    Differential: v.powertrain.differential_name
+  });
+  render("Engine", v.engine);
+  render("Transmission", v.transmission);
+  render("Differential", v.differential);
 }
 
-function renderPowertrain(powertrain) {
-  const results = document.getElementById("results");
-
-  const card = document.createElement("div");
-  card.className = "card";
-  card.innerHTML = `
-    <h3>Powertrain</h3>
-    <div class="spec"><span>Engine</span><span>${powertrain.engine_name}</span></div>
-    <div class="spec"><span>Transmission</span><span>${powertrain.transmission_name}</span></div>
-    <div class="spec"><span>Differential</span><span>${powertrain.differential_name}</span></div>
-  `;
-  results.appendChild(card);
-}
-
-function renderSection(title, specs) {
-  if (!specs) return;
-
-  const results = document.getElementById("results");
+function render(title, obj){
+  if(!obj) return;
   const card = document.createElement("div");
   card.className = "card";
   card.innerHTML = `<h3>${title}</h3>`;
-
-  for (const key in specs) {
-    const value = specs[key];
-    const display =
-      typeof value === "number" ? convert(value) : value;
-
-    const row = document.createElement("div");
-    row.className = "spec";
-    row.innerHTML = `<span>${key}</span><span>${display}</span>`;
-    card.appendChild(row);
+  for(const k in obj){
+    const v = typeof obj[k] === "number" ? convert(obj[k]) : obj[k];
+    card.innerHTML += `<div class="spec"><span>${k}</span><span>${v}</span></div>`;
   }
-
   results.appendChild(card);
 }
 
-function toggleUnits() {
+function toggleUnits(){
   unit = unit === "ft" ? "nm" : "ft";
   unitBtn.textContent = unit === "ft" ? "Units: ft-lb" : "Units: Nm";
   loadSpecs();
 }
 
-function convert(value) {
-  if (unit === "ft") return value + " ft-lb";
-  return Math.round(value * 1.356) + " Nm";
+function convert(v){
+  return unit === "ft" ? `${v} ft-lb` : `${Math.round(v*1.356)} Nm`;
 }
 </script>
 
 </body>
 </html>
-
