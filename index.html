@@ -1,212 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Torque Specs & Oils</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Torque Specs</title>
+
 <style>
-body { font-family: system-ui, -apple-system; background: #0f0f0f; color: #fff; margin:0; padding:16px;}
-h1{text-align:center;margin-bottom:10px;}
-select,input,button{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:none;font-size:16px;}
-button{background:#222;color:#fff;}
-button.active{background:#007aff;}
-.card{background:#1b1b1b;border-radius:10px;padding:12px;margin-top:10px;}
-.spec{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #333;}
-.spec:last-child{border-bottom:none;}
-.star{cursor:pointer;margin-left:8px;}
-.small{font-size:12px;opacity:0.6;text-align:center;}
+body {
+  font-family: system-ui, -apple-system;
+  background: #0f0f0f;
+  color: #fff;
+  margin: 0;
+  padding: 16px;
+}
+h1 {
+  text-align: center;
+}
+select, button {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+button {
+  background: #222;
+  color: #fff;
+}
+.card {
+  background: #1b1b1b;
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 10px;
+}
+.spec {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #333;
+}
+.spec:last-child {
+  border-bottom: none;
+}
+h3 {
+  margin-top: 0;
+  color: #00aaff;
+}
 </style>
 </head>
+
 <body>
 
-<h1>Torque Specs & Oils</h1>
+<h1>Torque Specs</h1>
 
-<!-- VIN input -->
-<input type="text" id="vinInput" placeholder="Enter VIN">
-<button onclick="searchVin()">Decode VIN</button>
-
-<!-- Vehicle and engine dropdowns -->
-<select id="vehicleSelect" onchange="loadEngines()">
+<select id="vehicleSelect" onchange="loadSpecs()">
   <option value="">Select Vehicle</option>
+  <option value="lexus_is350_2018">Lexus IS 350 (2018)</option>
 </select>
 
-<select id="engineSelect" onchange="loadSpecs()">
-  <option value="">Select Engine</option>
-</select>
+<button onclick="toggleUnits()" id="unitBtn">Units: ft-lb</button>
 
-<input type="text" id="search" placeholder="Search Parts..." oninput="filterSpecs()">
-
-<button id="unitBtn" onclick="toggleUnits()">Units: ft-lb</button>
-
-<div class="card" id="results"></div>
+<div id="results"></div>
 
 <script>
-// ---------------- STATE ----------------
-let torqueData = {};
-let currentVehicle = "";
-let currentEngine = "";
-let currentSpecs = {};
-let unit = localStorage.getItem("unit") || "ft";
-let favorites = JSON.parse(localStorage.getItem("favorites") || "{}");
+// ================= DATA =================
 
-// ---------------- FUNCTIONS ----------------
-
-// Load brand JSONs
-async function loadBrandData(){
-    const brands = ["toyota","lexus","honda","bmw","ford"];
-    let allData = {};
-    for(const brand of brands){
-        const res = await fetch(`${brand}.json`);
-        const data = await res.json();
-        allData = {...allData,...data};
+const torqueData = {
+  "lexus_is350_2018": {
+    powertrain: {
+      engine_name: "3.5L V6 2GR-FKS",
+      transmission_name: "8-Speed Automatic (UA80E)",
+      differential_name: "Rear Open Differential"
+    },
+    engine: {
+      "Oil Drain Plug": 30,
+      "Oil Capacity (qt)": 6.4,
+      "Oil Type": "SAE 0W-20",
+      "Valve Cover Bolts (in-lb)": 89,
+      "Oil Filter Torque": 18,
+      "Spark Plugs": 13
+    },
+    transmission: {
+      "Fluid Type": "Toyota WS ATF",
+      "Drain Plug": 36,
+      "Fill Plug": 36
+    },
+    differential: {
+      "Fluid Type": "SAE 75W-85 GL-5",
+      "Drain Plug": 49,
+      "Fill Plug": 49
     }
-    torqueData = allData;
-    populateVehicleDropdown();
+  }
+};
+
+// ================= STATE =================
+let unit = "ft";
+
+// ================= FUNCTIONS =================
+
+function loadSpecs() {
+  const vehicleKey = vehicleSelect.value;
+  const data = torqueData[vehicleKey];
+  if (!data) return;
+
+  const results = document.getElementById("results");
+  results.innerHTML = "";
+
+  renderPowertrain(data.powertrain);
+  renderSection("Engine Specs", data.engine);
+  renderSection("Transmission Specs", data.transmission);
+  renderSection("Differential Specs", data.differential);
 }
 
-// Populate vehicle dropdown
-function populateVehicleDropdown(){
-    const vehicleSelect = document.getElementById("vehicleSelect");
-    Object.keys(torqueData).forEach(key=>{
-        const option = document.createElement("option");
-        option.value = key;
-        const v = torqueData[key].models.join(", ");
-        option.text = `${key.toUpperCase()} (${v})`;
-        vehicleSelect.appendChild(option);
-    });
+function renderPowertrain(powertrain) {
+  const results = document.getElementById("results");
+
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <h3>Powertrain</h3>
+    <div class="spec"><span>Engine</span><span>${powertrain.engine_name}</span></div>
+    <div class="spec"><span>Transmission</span><span>${powertrain.transmission_name}</span></div>
+    <div class="spec"><span>Differential</span><span>${powertrain.differential_name}</span></div>
+  `;
+  results.appendChild(card);
 }
 
-// Load engines for selected vehicle
-function loadEngines(){
-    currentVehicle = document.getElementById("vehicleSelect").value;
-    currentEngine = "";
-    const engineSelect = document.getElementById("engineSelect");
-    engineSelect.innerHTML = '<option value="">Select Engine</option>';
-    if(currentVehicle && torqueData[currentVehicle].engines){
-        Object.keys(torqueData[currentVehicle].engines).forEach(eng=>{
-            const option = document.createElement("option");
-            option.value = eng;
-            option.text = eng;
-            engineSelect.appendChild(option);
-        });
-    }
+function renderSection(title, specs) {
+  if (!specs) return;
+
+  const results = document.getElementById("results");
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `<h3>${title}</h3>`;
+
+  for (const key in specs) {
+    const value = specs[key];
+    const display =
+      typeof value === "number" ? convert(value) : value;
+
+    const row = document.createElement("div");
+    row.className = "spec";
+    row.innerHTML = `<span>${key}</span><span>${display}</span>`;
+    card.appendChild(row);
+  }
+
+  results.appendChild(card);
 }
 
-// Load specs for selected engine
-function loadSpecs(){
-    const engineSelect = document.getElementById("engineSelect");
-    currentEngine = engineSelect.value;
-    if(currentVehicle && currentEngine){
-        currentSpecs = torqueData[currentVehicle].engines[currentEngine];
-        renderSpecs(currentSpecs);
-    }
+function toggleUnits() {
+  unit = unit === "ft" ? "nm" : "ft";
+  unitBtn.textContent = unit === "ft" ? "Units: ft-lb" : "Units: Nm";
+  loadSpecs();
 }
 
-// Render specs to page
-function renderSpecs(specs){
-    const results = document.getElementById("results");
-    results.innerHTML = "";
-    for(const category in specs){
-        const catData = specs[category];
-        const catDiv = document.createElement("div");
-        catDiv.className="card";
-        const h = document.createElement("h3");
-        h.innerText = category.toUpperCase();
-        catDiv.appendChild(h);
-        for(const part in catData){
-            const val = catData[part];
-            const display = val!==null ? convert(val) : "N/A";
-            const favKey = currentVehicle+currentEngine+part;
-            const star = favorites[favKey] ? "⭐" : "☆";
-            const div = document.createElement("div");
-            div.className="spec";
-            div.innerHTML=`<span><strong>${part}</strong></span><span>${display}<span class="star" onclick="toggleFav('${favKey}')">${star}</span></span>`;
-            catDiv.appendChild(div);
-        }
-        results.appendChild(catDiv);
-    }
+function convert(value) {
+  if (unit === "ft") return value + " ft-lb";
+  return Math.round(value * 1.356) + " Nm";
 }
-
-// Search filter
-function filterSpecs(){
-    const term = document.getElementById("search").value.toLowerCase();
-    if(!currentSpecs) return;
-    const filtered = {};
-    for(const cat in currentSpecs){
-        filtered[cat]={};
-        for(const part in currentSpecs[cat]){
-            if(part.toLowerCase().includes(term)){
-                filtered[cat][part]=currentSpecs[cat][part];
-            }
-        }
-        if(Object.keys(filtered[cat]).length===0) delete filtered[cat];
-    }
-    renderSpecs(filtered);
-}
-
-// Toggle units
-function toggleUnits(){
-    unit = unit==="ft"?"nm":"ft";
-    localStorage.setItem("unit",unit);
-    document.getElementById("unitBtn").textContent="Units: "+(unit==="ft"?"ft-lb":"Nm");
-    renderSpecs(currentSpecs);
-}
-
-// Convert values
-function convert(value){
-    if(unit==="ft") return value+" ft-lb";
-    return Math.round(value*1.356)+" Nm";
-}
-
-// Toggle favorites
-function toggleFav(key){
-    favorites[key]=!favorites[key];
-    localStorage.setItem("favorites",JSON.stringify(favorites));
-    renderSpecs(currentSpecs);
-}
-
-// ---------------- VIN decoding ----------------
-async function searchVin(){
-    const vin = document.getElementById("vinInput").value.trim().toUpperCase();
-    if(!vin) return alert("Enter a VIN");
-    const res = await fetch('vinMapping.json');
-    const vinMapping = await res.json();
-    const wmi = vin.slice(0,3);
-    const yearChar = vin[9];
-    const year = decodeVinYear(yearChar);
-    const vehicleData = vinMapping[wmi];
-    if(!vehicleData) return alert("VIN not recognized");
-
-    for(const model in vehicleData){
-        for(const range in vehicleData[model]){
-            const [start,end] = range.split("-").map(Number);
-            if(year >= start && year <= end){
-                const engines = vehicleData[model][range];
-                const engineCode = Object.keys(engines)[0];
-                const jsonKey = engines[engineCode];
-                document.getElementById("vehicleSelect").value = jsonKey.split("_")[0];
-                loadEngines();
-                document.getElementById("engineSelect").value = engineCode;
-                loadSpecs();
-                return;
-            }
-        }
-    }
-    alert("VIN not supported");
-}
-
-// Decode 10th VIN character to year
-function decodeVinYear(c){
-    const map = {A:1980,B:1981,C:1982,D:1983,E:1984,F:1985,G:1986,H:1987,J:1988,K:1989,L:1990,M:1991,N:1992,P:1993,R:1994,S:1995,T:1996,V:1997,W:1998,X:1999,Y:2000,
-                 1:2001,2:2002,3:2003,4:2004,5:2005,6:2006,7:2007,8:2008,9:2009,
-                 A2020:2020,B2021:2021,C2022:2022,D2023:2023,E2024:2024,F2025:2025};
-    return map[c] || null;
-}
-
-// ---------------- INIT ----------------
-loadBrandData();
-document.getElementById("unitBtn").textContent = "Units: "+(unit==="ft"?"ft-lb":"Nm");
 </script>
 
 </body>
 </html>
+
