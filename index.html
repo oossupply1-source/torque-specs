@@ -5,39 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Torque Specs</title>
 <style>
-body {
-  background:#0f0f0f;
-  color:#fff;
-  font-family:system-ui,-apple-system;
-  padding:16px;
-}
-input, select, button {
-  width:100%;
-  padding:12px;
-  margin:6px 0;
-  border-radius:8px;
-  border:none;
-  font-size:16px;
-}
+body { background:#0f0f0f; color:#fff; font-family:system-ui,-apple-system; padding:16px; }
+input, select, button { width:100%; padding:12px; margin:6px 0; border-radius:8px; border:none; font-size:16px; }
 button { background:#222; color:#fff; }
-.card {
-  background:#1b1b1b;
-  border-radius:10px;
-  padding:12px;
-  margin-top:10px;
-}
-.spec {
-  display:flex;
-  justify-content:space-between;
-  padding:6px 0;
-  border-bottom:1px solid #333;
-}
+.card { background:#1b1b1b; border-radius:10px; padding:12px; margin-top:10px; }
+.spec { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #333; }
 .spec:last-child { border-bottom:none; }
 </style>
 </head>
 <body>
 
 <h2>Torque Specs</h2>
+
 <input id="vinInput" placeholder="Enter VIN">
 <button onclick="searchVin()">Decode VIN</button>
 
@@ -46,6 +25,7 @@ button { background:#222; color:#fff; }
 </select>
 
 <button id="unitBtn" onclick="toggleUnits()">Units: ft-lb</button>
+
 <div id="results"></div>
 
 <script>
@@ -53,8 +33,8 @@ let unit = "ft";
 let brandData = {};
 let currentJsonKey = "";
 
-// ------------------- Smart VIN decode -------------------
-async function searchVin() {
+// VIN Search
+async function searchVin(){
   const vin = document.getElementById("vinInput").value.trim().toUpperCase();
   if(vin.length !== 17) return alert("VIN must be 17 characters");
 
@@ -63,24 +43,24 @@ async function searchVin() {
   const year = decodeVinYear(yearChar);
   if(!year) return alert("Unable to decode year from VIN");
 
-  try {
+  try{
     const res = await fetch("data/vinMapping.json");
     const vinMapping = await res.json();
     const brandMapping = vinMapping[wmi];
-    if(!brandMapping) return alert("VIN not recognized");
+    if(!brandMapping) return alert("VIN WMI not recognized");
 
     let found = false;
-
     for(const model in brandMapping){
-      for(const range in brandMapping[model]){
-        const [start,end] = range.split("-").map(Number);
+      const modelData = brandMapping[model];
+      for(const range in modelData){
+        if(!range) continue;
+        const [start, end] = range.split("-").map(Number);
         if(year >= start && year <= end){
-          const engines = brandMapping[model][range];
+          const engines = modelData[range];
           const engineCode = Object.keys(engines)[0];
-          currentJsonKey = engines[engineCode].jsonKey; // e.g., 'is300_1999_2005'
-          const make = currentJsonKey.split("_")[0];    // e.g., 'lexus'
-
-          await loadBrand(make, currentJsonKey, model);
+          currentJsonKey = engines[engineCode].jsonKey;
+          const make = currentJsonKey.split("_")[0];
+          await loadBrand(make, currentJsonKey);
           found = true;
           break;
         }
@@ -88,17 +68,17 @@ async function searchVin() {
       if(found) break;
     }
 
-    if(!found) alert("VIN decoded but model not found in your data files");
+    if(!found) alert("VIN decoded but model/year not found in JSON");
 
-  } catch(err) {
+  } catch(err){
     alert("Error reading VIN mapping: " + err.message);
     console.error(err);
   }
 }
 
-// ------------------- Load brand JSON with smart matching -------------------
-async function loadBrand(make, jsonKey, vinModel) {
-  try {
+// Load brand JSON data
+async function loadBrand(make, jsonKey){
+  try{
     const res = await fetch(`data/${make}.json`);
     if(!res.ok) throw new Error("Brand JSON not found");
     brandData = await res.json();
@@ -108,33 +88,22 @@ async function loadBrand(make, jsonKey, vinModel) {
 
     if(!brandData[jsonKey]) return alert("Vehicle data not found in JSON");
 
-    const v = brandData[jsonKey];
-
-    // Smart model matching
-    let matchedModel = v.models.find(m => normalizeString(m) === normalizeString(vinModel));
-    if(!matchedModel) matchedModel = v.models[0]; // fallback to first
-
     const opt = document.createElement("option");
     opt.value = jsonKey;
-    opt.textContent = matchedModel;
+    opt.textContent = brandData[jsonKey].models[0];
     vehicleSelect.appendChild(opt);
     vehicleSelect.selectedIndex = 1;
 
     loadSpecs();
 
-  } catch(err) {
+  } catch(err){
     alert("Error loading brand data: " + err.message);
     console.error(err);
   }
 }
 
-// ------------------- Normalize strings for fuzzy matching -------------------
-function normalizeString(str) {
-  return str.toLowerCase().replace(/[^a-z0-9]/g,"");
-}
-
-// ------------------- Load specs -------------------
-function loadSpecs() {
+// Load specs for selected vehicle
+function loadSpecs(){
   const key = document.getElementById("vehicleSelect").value;
   const v = brandData[key];
   if(!v) return;
@@ -148,13 +117,13 @@ function loadSpecs() {
     "Differential": v.powertrain.differential_name
   });
 
-  render("Engine Torque Specs", v.engine);
-  render("Transmission Torque Specs", v.transmission);
-  render("Differential Torque Specs", v.differential);
+  render("Engine Specs", v.engine);
+  render("Transmission Specs", v.transmission);
+  render("Differential Specs", v.differential);
   if(v.fluids) render("Fluids & Capacities", v.fluids);
 }
 
-// ------------------- Render function -------------------
+// Render cards
 function render(title,obj){
   if(!obj) return;
   const card = document.createElement("div");
@@ -167,25 +136,26 @@ function render(title,obj){
   document.getElementById("results").appendChild(card);
 }
 
-// ------------------- Unit toggle -------------------
+// Unit toggle
 function toggleUnits(){
   unit = unit==="ft" ? "nm" : "ft";
   document.getElementById("unitBtn").textContent = unit==="ft" ? "Units: ft-lb" : "Units: Nm";
   loadSpecs();
 }
 
+// Convert ft-lb <-> Nm
 function convert(v){
   return unit==="ft" ? `${v} ft-lb` : `${Math.round(v*1.356)} Nm`;
 }
 
-// ------------------- Decode VIN year -------------------
+// Decode VIN year (10th char)
 function decodeVinYear(c){
   const map = {
     A:1980,B:1981,C:1982,D:1983,E:1984,F:1985,G:1986,H:1987,J:1988,K:1989,L:1990,M:1991,N:1992,P:1993,R:1994,S:1995,T:1996,V:1997,W:1998,X:1999,Y:2000,
     1:2001,2:2002,3:2003,4:2004,5:2005,6:2006,7:2007,8:2008,9:2009,
     A2020:2020,B2021:2021,C2022:2022,D2023:2023,E2024:2024,F2025:2025
   };
-  return map[c]||null;
+  return map[c] || null;
 }
 </script>
 
