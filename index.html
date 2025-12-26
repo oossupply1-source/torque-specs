@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Torque Specs</title>
-
 <style>
 body {
   background:#0f0f0f;
@@ -20,10 +19,7 @@ input, select, button {
   border:none;
   font-size:16px;
 }
-button {
-  background:#222;
-  color:#fff;
-}
+button { background:#222; color:#fff; }
 .card {
   background:#1b1b1b;
   border-radius:10px;
@@ -39,11 +35,9 @@ button {
 .spec:last-child { border-bottom:none; }
 </style>
 </head>
-
 <body>
 
 <h2>Torque Specs</h2>
-
 <input id="vinInput" placeholder="Enter VIN">
 <button onclick="searchVin()">Decode VIN</button>
 
@@ -52,7 +46,6 @@ button {
 </select>
 
 <button id="unitBtn" onclick="toggleUnits()">Units: ft-lb</button>
-
 <div id="results"></div>
 
 <script>
@@ -69,34 +62,39 @@ async function searchVin(){
   const year = decodeVinYear(yearChar);
   if(!year) return alert("Unable to decode year from VIN");
 
-  const res = await fetch("data/vinMapping.json");
-  const vinMapping = await res.json();
-  const brandMapping = vinMapping[wmi];
-  if(!brandMapping) return alert("VIN not recognized");
+  try {
+    const res = await fetch("data/vinMapping.json");
+    const vinMapping = await res.json();
+    const brandMapping = vinMapping[wmi];
+    if(!brandMapping) return alert("VIN not recognized");
 
-  let found = false;
-  for(const model in brandMapping){
-    for(const range in brandMapping[model]){
-      const [start,end] = range.split("-").map(Number);
-      if(year >= start && year <= end){
-        const engines = brandMapping[model][range];
-        const engineCode = Object.keys(engines)[0];
-        currentJsonKey = engines[engineCode].jsonKey; // JSON file key
-        const make = currentJsonKey.split("_")[0];    // e.g., 'lexus'
-
-        await loadBrand(make, currentJsonKey); // load brand JSON
-        found = true;
-        break;
+    let found = false;
+    for(const model in brandMapping){
+      for(const range in brandMapping[model]){
+        const [start,end] = range.split("-").map(Number);
+        if(year >= start && year <= end){
+          const engines = brandMapping[model][range];
+          const engineCode = Object.keys(engines)[0];
+          currentJsonKey = engines[engineCode].jsonKey; // e.g., 'is300_1999_2005'
+          const make = currentJsonKey.split("_")[0];    // e.g., 'lexus'
+          await loadBrand(make, currentJsonKey);
+          found = true;
+          break;
+        }
       }
+      if(found) break;
     }
-    if(found) break;
-  }
 
-  if(!found) alert("VIN decoded but model not found in data files");
+    if(!found) alert("VIN decoded but model not found in data files");
+
+  } catch(err){
+    alert("Error reading VIN mapping: " + err.message);
+    console.error(err);
+  }
 }
 
 async function loadBrand(make, jsonKey){
-  try{
+  try {
     const res = await fetch(`data/${make}.json`);
     if(!res.ok) throw new Error("Brand JSON not found");
     brandData = await res.json();
@@ -138,7 +136,7 @@ function loadSpecs(){
   render("Engine Torque Specs", v.engine);
   render("Transmission Torque Specs", v.transmission);
   render("Differential Torque Specs", v.differential);
-  render("Fluids & Capacities", v.fluids);
+  if(v.fluids) render("Fluids & Capacities", v.fluids);
 }
 
 function render(title,obj){
