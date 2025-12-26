@@ -69,7 +69,7 @@ async function searchVin(){
   const data = await res.json();
 
   const get = k => data.Results.find(r=>r.Variable===k)?.Value;
-  const make = get("Make")?.toLowerCase();
+  const make = get("Make")?.trim().toLowerCase();
   const model = get("Model");
 
   if(!make) return alert("VIN not supported");
@@ -78,30 +78,40 @@ async function searchVin(){
 }
 
 async function loadBrand(make, model){
-  const res = await fetch(`data/${make}.json`);
-  brandData = await res.json();
+  try {
+    const res = await fetch(`data/${make}.json`);
+    if(!res.ok) throw new Error("Brand JSON not found");
 
-  vehicleSelect.innerHTML = "";
-  for(const key in brandData){
-  if ( 
-    brandData[key].models.some(m =>
-    model.replace(/\s/g,"").toLowerCase()
-      .includes(m.replace(/\s/g,"").toLowerCase())
-  )
-) {
+    brandData = await res.json();
 
-      const opt = document.createElement("option");
-      opt.value = key;
-      opt.textContent = brandData[key].models[0];
-      vehicleSelect.appendChild(opt);
+    vehicleSelect.innerHTML = "";
+
+    for(const key in brandData){
+      if (
+        brandData[key].models.some(m =>
+          model.replace(/\s/g,"").toLowerCase()
+            .includes(m.replace(/\s/g,"").toLowerCase())
+        )
+      ) {
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = brandData[key].models[0];
+        vehicleSelect.appendChild(opt);
+      }
     }
+
+    if(vehicleSelect.options.length === 0){
+      alert("Vehicle decoded but no matching model found in data");
+    }
+
+    loadSpecs();
+
+  } catch(err){
+    alert("Error loading brand data: " + err.message);
+    console.error(err);
   }
-  loadSpecs();
 }
 
-function loadSpecs(){
-  const v = brandData[vehicleSelect.value];
-  if(!v) return;
 
   results.innerHTML = "";
   render("Powertrain", {
