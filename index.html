@@ -83,7 +83,13 @@ async function loadBrand(make, model){
 
   vehicleSelect.innerHTML = "";
   for(const key in brandData){
-    if(brandData[key].models.includes(model)){
+  if ( 
+    brandData[key].models.some(m =>
+    model.replace(/\s/g,"").toLowerCase()
+      .includes(m.replace(/\s/g,"").toLowerCase())
+  )
+) {
+
       const opt = document.createElement("option");
       opt.value = key;
       opt.textContent = brandData[key].models[0];
