@@ -44,7 +44,7 @@ button {
 
 <h2>Torque Specs</h2>
 
-<input id="vinInput" placeholder="Enter VIN">
+<input id="vinInput" placeholder="Enter VIN (17 characters)">
 <button onclick="searchVin()">Decode VIN</button>
 
 <select id="vehicleSelect" onchange="loadSpecs()">
@@ -59,6 +59,12 @@ button {
 let unit = "ft";
 let brandData = {};
 
+// Normalize strings for reliable matching
+function normalize(str){
+  return str?.toLowerCase().replace(/[^a-z0-9]/g,"");
+}
+
+// Decode VIN
 async function searchVin(){
   const vin = document.getElementById("vinInput").value.trim().toUpperCase();
   if(vin.length !== 17) return alert("VIN must be 17 characters");
@@ -69,28 +75,42 @@ async function searchVin(){
   const data = await res.json();
 
   const get = k => data.Results.find(r => r.Variable === k)?.Value;
-  const make = get("Make")?.toLowerCase();
+
+  const makeRaw = get("Make");
   const model = get("Model");
 
-  if(!make || !model) return alert("VIN decoded but missing data");
+  const makeMap = {
+    "LEXUS": "lexus",
+    "TOYOTA": "toyota",
+    "BMW": "bmw",
+    "HONDA": "honda",
+    "FORD": "ford"
+  };
+
+  const make = makeMap[makeRaw?.toUpperCase()];
+
+  if(!make || !model){
+    return alert("VIN decoded but make/model not supported");
+  }
 
   loadBrand(make, model);
 }
 
+// Load brand JSON and match model
 async function loadBrand(make, model){
   try {
     const res = await fetch(`data/${make}.json`);
-    if(!res.ok) throw new Error("Brand file not found");
+    if(!res.ok) throw new Error("Brand JSON not found");
 
     brandData = await res.json();
+
     const vehicleSelect = document.getElementById("vehicleSelect");
     vehicleSelect.innerHTML = `<option value="">Select Vehicle</option>`;
 
     for(const key in brandData){
       if(
         brandData[key].models.some(m =>
-          model.replace(/\s/g,"").toLowerCase()
-            .includes(m.replace(/\s/g,"").toLowerCase())
+          normalize(model).includes(normalize(m))
         )
       ){
         const opt = document.createElement("option");
@@ -100,8 +120,9 @@ async function loadBrand(make, model){
       }
     }
 
-    if(vehicleSelect.options.length === 1){
-      alert("VIN decoded, but model not found in data file");
+    if(vehicleSelect.options.length <= 1){
+      alert("VIN decoded, but model not found in your data files");
+      return;
     }
 
     vehicleSelect.selectedIndex = 1;
@@ -113,6 +134,7 @@ async function loadBrand(make, model){
   }
 }
 
+// Load specs
 function loadSpecs(){
   const key = document.getElementById("vehicleSelect").value;
   const v = brandData[key];
@@ -122,18 +144,20 @@ function loadSpecs(){
   results.innerHTML = "";
 
   render("Powertrain", {
-    "Engine": v.powertrain.engine_name,
-    "Transmission": v.powertrain.transmission_name,
-    "Differential": v.powertrain.differential_name
+    "Engine": v.powertrain?.engine_name,
+    "Transmission": v.powertrain?.transmission_name,
+    "Differential": v.powertrain?.differential_name
   });
 
-  render("Engine Torque Specs", v.engine);
-  render("Transmission Torque Specs", v.transmission);
-  render("Differential Torque Specs", v.differential);
+  render("Engine Torque & Fluids", v.engine);
+  render("Transmission Torque & Fluids", v.transmission);
+  render("Differential Torque & Fluids", v.differential);
 }
 
+// Render cards
 function render(title, obj){
   if(!obj) return;
+
   const card = document.createElement("div");
   card.className = "card";
   card.innerHTML = `<h3>${title}</h3>`;
@@ -144,12 +168,14 @@ function render(title, obj){
       <div class="spec">
         <span>${k}</span>
         <span>${val}</span>
-      </div>`;
+      </div>
+    `;
   }
 
   document.getElementById("results").appendChild(card);
 }
 
+// Toggle units
 function toggleUnits(){
   unit = unit === "ft" ? "nm" : "ft";
   document.getElementById("unitBtn").textContent =
@@ -157,6 +183,7 @@ function toggleUnits(){
   loadSpecs();
 }
 
+// Convert torque
 function convert(v){
   return unit === "ft"
     ? `${v} ft-lb`
