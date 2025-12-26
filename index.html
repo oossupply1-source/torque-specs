@@ -109,8 +109,22 @@ async function loadBrand(make, model){
 
     for(const key in brandData){
       if(
-        brandData[key].models.some(m =>
-          normalize(model).includes(normalize(m))
+      function normalizeModel(str) {
+  return str.replace(/\s|-/g, "").toLowerCase(); // remove spaces/hyphens and lowercase
+}
+
+for(const key in brandData){
+  const match = brandData[key].models.some(m =>
+    normalizeModel(m) === normalizeModel(model)
+  );
+
+  if(match){
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = brandData[key].models[0];
+    vehicleSelect.appendChild(opt);
+  }
+}
         )
       ){
         const opt = document.createElement("option");
