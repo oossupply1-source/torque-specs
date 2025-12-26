@@ -53,7 +53,8 @@ let unit = "ft";
 let brandData = {};
 let currentJsonKey = "";
 
-async function searchVin(){
+// ------------------- Smart VIN decode -------------------
+async function searchVin() {
   const vin = document.getElementById("vinInput").value.trim().toUpperCase();
   if(vin.length !== 17) return alert("VIN must be 17 characters");
 
@@ -69,6 +70,7 @@ async function searchVin(){
     if(!brandMapping) return alert("VIN not recognized");
 
     let found = false;
+
     for(const model in brandMapping){
       for(const range in brandMapping[model]){
         const [start,end] = range.split("-").map(Number);
@@ -77,7 +79,8 @@ async function searchVin(){
           const engineCode = Object.keys(engines)[0];
           currentJsonKey = engines[engineCode].jsonKey; // e.g., 'is300_1999_2005'
           const make = currentJsonKey.split("_")[0];    // e.g., 'lexus'
-          await loadBrand(make, currentJsonKey);
+
+          await loadBrand(make, currentJsonKey, model);
           found = true;
           break;
         }
@@ -85,15 +88,16 @@ async function searchVin(){
       if(found) break;
     }
 
-    if(!found) alert("VIN decoded but model not found in data files");
+    if(!found) alert("VIN decoded but model not found in your data files");
 
-  } catch(err){
+  } catch(err) {
     alert("Error reading VIN mapping: " + err.message);
     console.error(err);
   }
 }
 
-async function loadBrand(make, jsonKey){
+// ------------------- Load brand JSON with smart matching -------------------
+async function loadBrand(make, jsonKey, vinModel) {
   try {
     const res = await fetch(`data/${make}.json`);
     if(!res.ok) throw new Error("Brand JSON not found");
@@ -104,21 +108,33 @@ async function loadBrand(make, jsonKey){
 
     if(!brandData[jsonKey]) return alert("Vehicle data not found in JSON");
 
+    const v = brandData[jsonKey];
+
+    // Smart model matching
+    let matchedModel = v.models.find(m => normalizeString(m) === normalizeString(vinModel));
+    if(!matchedModel) matchedModel = v.models[0]; // fallback to first
+
     const opt = document.createElement("option");
     opt.value = jsonKey;
-    opt.textContent = brandData[jsonKey].models[0];
+    opt.textContent = matchedModel;
     vehicleSelect.appendChild(opt);
     vehicleSelect.selectedIndex = 1;
 
     loadSpecs();
 
-  } catch(err){
+  } catch(err) {
     alert("Error loading brand data: " + err.message);
     console.error(err);
   }
 }
 
-function loadSpecs(){
+// ------------------- Normalize strings for fuzzy matching -------------------
+function normalizeString(str) {
+  return str.toLowerCase().replace(/[^a-z0-9]/g,"");
+}
+
+// ------------------- Load specs -------------------
+function loadSpecs() {
   const key = document.getElementById("vehicleSelect").value;
   const v = brandData[key];
   if(!v) return;
@@ -126,7 +142,6 @@ function loadSpecs(){
   const results = document.getElementById("results");
   results.innerHTML = "";
 
-  // Powertrain info
   render("Powertrain", {
     "Engine": v.powertrain.engine_name,
     "Transmission": v.powertrain.transmission_name,
@@ -139,6 +154,7 @@ function loadSpecs(){
   if(v.fluids) render("Fluids & Capacities", v.fluids);
 }
 
+// ------------------- Render function -------------------
 function render(title,obj){
   if(!obj) return;
   const card = document.createElement("div");
@@ -151,6 +167,7 @@ function render(title,obj){
   document.getElementById("results").appendChild(card);
 }
 
+// ------------------- Unit toggle -------------------
 function toggleUnits(){
   unit = unit==="ft" ? "nm" : "ft";
   document.getElementById("unitBtn").textContent = unit==="ft" ? "Units: ft-lb" : "Units: Nm";
@@ -161,7 +178,7 @@ function convert(v){
   return unit==="ft" ? `${v} ft-lb` : `${Math.round(v*1.356)} Nm`;
 }
 
-// Decode VIN year
+// ------------------- Decode VIN year -------------------
 function decodeVinYear(c){
   const map = {
     A:1980,B:1981,C:1982,D:1983,E:1984,F:1985,G:1986,H:1987,J:1988,K:1989,L:1990,M:1991,N:1992,P:1993,R:1994,S:1995,T:1996,V:1997,W:1998,X:1999,Y:2000,
