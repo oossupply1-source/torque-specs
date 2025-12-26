@@ -1,10 +1,6 @@
 {
   "is300_1999_2005": {
-    "models": [
-      "IS300",
-      "IS 300",
-      "IS-300"
-    ],
+    "models": ["IS300","IS 300","IS-300","IS300 Sedan"],
     "years": "1999-2005",
     "powertrain": {
       "engine_name": "2JZ-GE",
@@ -33,11 +29,7 @@
   },
 
   "rx350_2007_2015": {
-    "models": [
-      "RX350",
-      "RX 350",
-      "RX-350"
-    ],
+    "models": ["RX350","RX 350","RX-350"],
     "years": "2007-2015",
     "powertrain": {
       "engine_name": "2GR-FE",
@@ -62,11 +54,7 @@
   },
 
   "es350_2007_2018": {
-    "models": [
-      "ES350",
-      "ES 350",
-      "ES-350"
-    ],
+    "models": ["ES350","ES 350","ES-350"],
     "years": "2007-2018",
     "powertrain": {
       "engine_name": "2GR-FE",
@@ -83,6 +71,82 @@
     "transmission": {
       "Fluid Type": "Toyota WS",
       "Capacity (qt)": 11.0
+    }
+  },
+
+  "gs300_1998_2005": {
+    "models": ["GS300","GS 300","GS-300"],
+    "years": "1998-2005",
+    "powertrain": {
+      "engine_name": "2JZ-GE",
+      "transmission_name": "A650E / W55",
+      "differential_name": "Toyota IRS"
+    },
+    "engine": {
+      "Oil Drain Plug": 30,
+      "Oil Filter": 13,
+      "Valve Cover Bolts (in-lb)": 53,
+      "Spark Plugs": 13,
+      "Oil Capacity (qt)": 6.5,
+      "Oil Type": "5W-30"
+    },
+    "transmission": {
+      "Fluid Type": "Toyota T-IV",
+      "Capacity (qt)": 9.0
+    },
+    "differential": {
+      "Fluid Type": "75W-90",
+      "Capacity (qt)": 1.1
+    }
+  },
+
+  "ls400_1990_2000": {
+    "models": ["LS400","LS 400","LS-400"],
+    "years": "1990-2000",
+    "powertrain": {
+      "engine_name": "1UZ-FE",
+      "transmission_name": "A340E / A343F",
+      "differential_name": "Toyota IRS"
+    },
+    "engine": {
+      "Oil Drain Plug": 30,
+      "Oil Filter": 13,
+      "Spark Plugs": 13,
+      "Oil Capacity (qt)": 6.5,
+      "Oil Type": "5W-30"
+    },
+    "transmission": {
+      "Fluid Type": "Toyota T-IV",
+      "Capacity (qt)": 9.0
+    },
+    "differential": {
+      "Fluid Type": "75W-90",
+      "Capacity (qt)": 1.1
+    }
+  },
+
+  "lx470_1998_2007": {
+    "models": ["LX470","LX 470","LX-470"],
+    "years": "1998-2007",
+    "powertrain": {
+      "engine_name": "2UZ-FE",
+      "transmission_name": "A340E",
+      "differential_name": "AWD / Center Diff"
+    },
+    "engine": {
+      "Oil Drain Plug": 39,
+      "Oil Filter": 13,
+      "Spark Plugs": 13,
+      "Oil Capacity (qt)": 7.0,
+      "Oil Type": "5W-30"
+    },
+    "transmission": {
+      "Fluid Type": "Toyota T-IV",
+      "Capacity (qt)": 9.0
+    },
+    "differential": {
+      "Fluid Type": "75W-90",
+      "Capacity (qt)": 2.0
     }
   }
 }
