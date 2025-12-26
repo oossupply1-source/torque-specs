@@ -60,7 +60,7 @@ let unit = "ft";
 let brandData = {};
 
 async function searchVin(){
-  const vin = vinInput.value.trim().toUpperCase();
+  const vin = document.getElementById("vinInput").value.trim().toUpperCase();
   if(vin.length !== 17) return alert("VIN must be 17 characters");
 
   const res = await fetch(
@@ -68,11 +68,11 @@ async function searchVin(){
   );
   const data = await res.json();
 
-  const get = k => data.Results.find(r=>r.Variable===k)?.Value;
-  const make = get("Make")?.trim().toLowerCase();
+  const get = k => data.Results.find(r => r.Variable === k)?.Value;
+  const make = get("Make")?.toLowerCase();
   const model = get("Model");
 
-  if(!make) return alert("VIN not supported");
+  if(!make || !model) return alert("VIN decoded but missing data");
 
   loadBrand(make, model);
 }
@@ -80,19 +80,19 @@ async function searchVin(){
 async function loadBrand(make, model){
   try {
     const res = await fetch(`data/${make}.json`);
-    if(!res.ok) throw new Error("Brand JSON not found");
+    if(!res.ok) throw new Error("Brand file not found");
 
     brandData = await res.json();
-
-    vehicleSelect.innerHTML = "";
+    const vehicleSelect = document.getElementById("vehicleSelect");
+    vehicleSelect.innerHTML = `<option value="">Select Vehicle</option>`;
 
     for(const key in brandData){
-      if (
+      if(
         brandData[key].models.some(m =>
           model.replace(/\s/g,"").toLowerCase()
             .includes(m.replace(/\s/g,"").toLowerCase())
         )
-      ) {
+      ){
         const opt = document.createElement("option");
         opt.value = key;
         opt.textContent = brandData[key].models[0];
@@ -100,28 +100,36 @@ async function loadBrand(make, model){
       }
     }
 
-    if(vehicleSelect.options.length === 0){
-      alert("Vehicle decoded but no matching model found in data");
+    if(vehicleSelect.options.length === 1){
+      alert("VIN decoded, but model not found in data file");
     }
 
+    vehicleSelect.selectedIndex = 1;
     loadSpecs();
 
   } catch(err){
-    alert("Error loading brand data: " + err.message);
+    alert("Error loading brand data");
     console.error(err);
   }
 }
 
+function loadSpecs(){
+  const key = document.getElementById("vehicleSelect").value;
+  const v = brandData[key];
+  if(!v) return;
 
+  const results = document.getElementById("results");
   results.innerHTML = "";
+
   render("Powertrain", {
-    Engine: v.powertrain.engine_name,
-    Transmission: v.powertrain.transmission_name,
-    Differential: v.powertrain.differential_name
+    "Engine": v.powertrain.engine_name,
+    "Transmission": v.powertrain.transmission_name,
+    "Differential": v.powertrain.differential_name
   });
-  render("Engine", v.engine);
-  render("Transmission", v.transmission);
-  render("Differential", v.differential);
+
+  render("Engine Torque Specs", v.engine);
+  render("Transmission Torque Specs", v.transmission);
+  render("Differential Torque Specs", v.differential);
 }
 
 function render(title, obj){
@@ -129,21 +137,30 @@ function render(title, obj){
   const card = document.createElement("div");
   card.className = "card";
   card.innerHTML = `<h3>${title}</h3>`;
+
   for(const k in obj){
-    const v = typeof obj[k] === "number" ? convert(obj[k]) : obj[k];
-    card.innerHTML += `<div class="spec"><span>${k}</span><span>${v}</span></div>`;
+    const val = typeof obj[k] === "number" ? convert(obj[k]) : obj[k];
+    card.innerHTML += `
+      <div class="spec">
+        <span>${k}</span>
+        <span>${val}</span>
+      </div>`;
   }
-  results.appendChild(card);
+
+  document.getElementById("results").appendChild(card);
 }
 
 function toggleUnits(){
   unit = unit === "ft" ? "nm" : "ft";
-  unitBtn.textContent = unit === "ft" ? "Units: ft-lb" : "Units: Nm";
+  document.getElementById("unitBtn").textContent =
+    unit === "ft" ? "Units: ft-lb" : "Units: Nm";
   loadSpecs();
 }
 
 function convert(v){
-  return unit === "ft" ? `${v} ft-lb` : `${Math.round(v*1.356)} Nm`;
+  return unit === "ft"
+    ? `${v} ft-lb`
+    : `${Math.round(v * 1.356)} Nm`;
 }
 </script>
 
